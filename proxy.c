@@ -42,5 +42,5 @@ int main(int argc, char *argv[]) {
 
 void printSAin(struct sockaddr_in* sockaddr) {
     printf("Port: %d\n", sockaddr->sin_port);
-    printf("Addr: %u\n", sockaddr->sin_addr->s_addr);
+    printf("Addr: %u\n", sockaddr->sin_addr.s_addr);
 }
