@@ -42,14 +42,25 @@ int main(int argc, char *argv[]) {
         clientlen = sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
+        char host_buf[MAXLINE];
+        char request_buf[MAXLINE];
+
         Rio_readinitb(&rio, connfd);
         Rio_readlineb(&rio, buf, MAXLINE);
-        sscanf(buf, "%s %s %s", method, uri, version);
 
-        printSAin(&clientaddr);
-        printf("Method: %s\n", method);
-        printf("URI: %s\n", uri);
-        printf("Version: %s\n", version);
+        sscanf(host_buf, host_hdr, "www.cmu.edu");
+        sscanf(request_buf, "%s%s%s%s%s%s", host_buf, user_agent_hdr,
+        	accept_hdr, accept_encoding_hdr, connection_hdr,
+        	proxy_connection_hdr)
+
+        
+        
+        // sscanf(buf, "%s %s %s", method, uri, version);
+
+        // printSAin(&clientaddr);
+        // printf("Method: %s\n", method);
+        // printf("URI: %s\n", uri);
+        // printf("Version: %s\n", version);
 
 		Close(connfd);
     }
