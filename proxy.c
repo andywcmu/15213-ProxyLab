@@ -27,7 +27,9 @@ int main(int argc, char *argv[]) {
     port = atoi(argv[1]);
 
     listenfd = Open_listenfd(port);
+    printf("test1\n");
     while (1) {
+    	printf("while\n");
 		clientlen = sizeof(clientaddr);
 		connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 		printf("%d\n", connfd);
