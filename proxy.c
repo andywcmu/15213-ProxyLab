@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
     while (1) {
 		clientlen = sizeof(clientaddr);
 		connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
+		printf("%d\n", connfd);
 	//doit(connfd);
 		Close(connfd);
     }
