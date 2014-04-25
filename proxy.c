@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     printf("%s%s%s", user_agent_hdr, accept_hdr, accept_encoding_hdr);
     int listenfd, connfd, port, clientlen;
     struct sockaddr_in clientaddr;
-    char buf[MAXLINE];
+    char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
     rio_t rio;
 
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
         printSAin(&clientaddr);
         printf("Method: %s\n", method);
-        printf("URL: %s\n", uri);
+        printf("URI: %s\n", uri);
         printf("Version: %s\n", version);
 
 		Close(connfd);
