@@ -33,9 +33,12 @@ int main(int argc, char *argv[]) {
 		clientlen = sizeof(clientaddr);
 		connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 		printf("%d\n", connfd);
-	//doit(connfd);
 		Close(connfd);
     }
     return 0;
 }
 
+void printSAin(struct sockaddr_in* sockaddr) {
+    printf("Port: %d\n", sockaddr->sin_port);
+    printf("Addr: %u\n", (unsigned int)sockaddr->sin_addr);
+}
