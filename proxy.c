@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
 
         printf("%s\n\n\n\n%s\n", host_buf, request_buf);
 
-        
-        
+
+
         // sscanf(buf, "%s %s %s", method, uri, version);
 
         // printSAin(&clientaddr);
