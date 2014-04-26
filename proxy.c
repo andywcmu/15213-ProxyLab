@@ -13,10 +13,7 @@ static const char *accept_hdr = "Accept: text/html,application/xhtml+xml,applica
 static const char *accept_encoding_hdr = "Accept-Encoding: gzip, deflate\r\n";
 static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
-<<<<<<< HEAD
 static const char *http_get_request = "GET %s HTTP/1.0\r\n";
-=======
->>>>>>> FETCH_HEAD
 
 void printSAin(struct sockaddr_in sockaddr);
 
@@ -51,10 +48,6 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
 }
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> FETCH_HEAD
 int main(int argc, char *argv[]) {
     printf("%s%s%s", user_agent_hdr, accept_hdr, accept_encoding_hdr);
     int listenfd, connfd, listenport, clientlen;
@@ -64,14 +57,11 @@ int main(int argc, char *argv[]) {
     char method[MAXLINE];
     char uri[MAXLINE];
     char version[MAXLINE];
-<<<<<<< HEAD
     char host[MAXLINE];
     char suffix[MAXLINE];
     rio_t clientrio, serverrio;
-=======
 
     rio_t rio;
->>>>>>> FETCH_HEAD
 
 
     /* Check command line args */
@@ -80,60 +70,47 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-<<<<<<< HEAD
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
-=======
     port = atoi(argv[1]);
 
     listenfd = Open_listenfd(port);
 
->>>>>>> FETCH_HEAD
     while (1) {
         printf("while\n");
         clientlen = sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
-<<<<<<< HEAD
-=======
         // printSAin(clientaddr);
 
->>>>>>> FETCH_HEAD
         char host_buf[MAXLINE];
         char get_buf[MAXLINE];
         char request_buf[MAXLINE];
 
-<<<<<<< HEAD
         Rio_readinitb(&clientrio, connfd);
         Rio_readlineb(&clientrio, buf, MAXLINE);
-=======
         // Read request method, uri, and version
         Rio_readinitb(&rio, connfd);
         Rio_readlineb(&rio, buf, MAXLINE);
         sscanf("%s %s %s\n", method, uri, version);
 
         printf("%s\n", buf);
->>>>>>> FETCH_HEAD
 
 
         sscanf(buf, "%s %s %s", method, uri, version);
 
         if (strcmp(method, "GET")) {
             fprintf(stderr, "method %s not yet implemented\n", method);
-<<<<<<< HEAD
         } else {
 
 
             parse_uri(uri, host, &serverport, suffix);
 
-=======
             continue;
         }
->>>>>>> FETCH_HEAD
 
 
-<<<<<<< HEAD
             printf("host: %s\n", host);
             printf("port: %d\n", serverport);
             printf("suffix: %s\n", suffix);
@@ -165,19 +142,15 @@ int main(int argc, char *argv[]) {
 
             Close(serverfd);
         }
-=======
         sprintf(host_buf, host_hdr, "www.cmu.edu");
         sprintf(request_buf, "%s%s%s%s%s%s",
             host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr,
             connection_hdr, proxy_connection_hdr);
->>>>>>> FETCH_HEAD
 
         Close(connfd);
     }
     return 0;
-<<<<<<< HEAD
 }
-=======
 
 }
 
@@ -187,4 +160,3 @@ void printSAin(struct sockaddr_in sockaddr) {
     // Transfrom addr to ip address
     printf("IP: %s\n", inet_ntoa(sockaddr.sin_addr));
 }
->>>>>>> FETCH_HEAD
