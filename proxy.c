@@ -52,9 +52,11 @@ int main(int argc, char *argv[]) {
         Rio_readlineb(&rio, buf, MAXLINE);
 
         sprintf(host_buf, host_hdr, "www.cmu.edu");
-        sprintf(request_buf, "%s%s%s%s%s%s", host_buf, user_agent_hdr,
-        	accept_hdr, accept_encoding_hdr, connection_hdr,
+        sprintf(request_buf, "%s%s%s%s%s%s",
+            host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr, connection_hdr,
         	proxy_connection_hdr);
+
+        printf("%s\n\n\n\n%s\n", host_buf, request_buf);
 
         
         
