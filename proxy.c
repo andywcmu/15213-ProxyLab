@@ -7,12 +7,12 @@
 #define MAX_LINE 1024
 
 /* You won't lose style points for including these long lines in your code */
-// static const char *host_hdr = "Host: %s\r\n";
+static const char *host_hdr = "Host: %s\r\n";
 static const char *user_agent_hdr = "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 Firefox/10.0.3\r\n";
 static const char *accept_hdr = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n";
 static const char *accept_encoding_hdr = "Accept-Encoding: gzip, deflate\r\n";
-// static const char *connection_hdr = "Connection: close\r\n";
-// static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
+static const char *connection_hdr = "Connection: close\r\n";
+static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 
 void printSAin(struct sockaddr_in sockaddr);
 
@@ -51,18 +51,11 @@ int main(int argc, char *argv[]) {
     printf("%s%s%s", user_agent_hdr, accept_hdr, accept_encoding_hdr);
     int listenfd, connfd, port, clientlen;
     struct sockaddr_in clientaddr;
-<<<<<<< HEAD
     char buf[MAXLINE];
     char method[MAXLINE];
     char uri[MAXLINE];
     char version[MAXLINE];
-=======
-    char buf[MAX_LINE];
 
-    char method[MAX_LINE], uri[MAX_LINE], version[MAX_LINE];
-
-
->>>>>>> andy
     rio_t rio;
 
 
@@ -72,12 +65,10 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // printf("1: %s\n2: %s\n", argv[0], argv[1]);
-
-
     port = atoi(argv[1]);
 
     listenfd = Open_listenfd(port);
+
     while (1) {
         clientlen = sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
@@ -94,46 +85,21 @@ int main(int argc, char *argv[]) {
 
         printf("%s\n", buf);
 
-<<<<<<< HEAD
+
         sscanf(buf, "%s %s %s", method, uri, version);
 
         if (!strcmp(method, "GET")) {
             fprintf(stderr, "method %s not yet implemented\n", method);
-            contine;
+            continue;
         }
 
         printf("%s", buf);
         if (request_buf == host_buf) {}
 
-
-        // sprintf(host_buf, host_hdr, "www.cmu.edu");
-        // sprintf(request_buf, "%s%s%s%s%s%s",
-            // host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr, connection_hdr,
-            // proxy_connection_hdr);
-
-        // printf("%s\n\n\n\n%s\n", host_buf, request_buf);
-
-
-=======
         sprintf(host_buf, host_hdr, "www.cmu.edu");
         sprintf(request_buf, "%s%s%s%s%s%s",
             host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr,
             connection_hdr, proxy_connection_hdr);
-
-        // printf("%s\n", request_buf);
-
-        // Rio_writen(connfd, "HTTP/1.0 404 NotFound\r\n", MAX_LINE);
->>>>>>> andy
-
-
-
-        // sscanf(buf, "%s %s %s", method, uri, version);
-
-        // printSAin(&clientaddr);
-        // printf("Method: %s\n", method);
-        // printf("URI: %s\n", uri);
-        // printf("Version: %s\n", version);
-
 
         Close(connfd);
     }
