@@ -14,6 +14,7 @@ static const char *accept_encoding_hdr = "Accept-Encoding: gzip, deflate\r\n";
 // static const char *connection_hdr = "Connection: close\r\n";
 // static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 
+void printSAin(struct sockaddr_in sockaddr);
 
 /*
  * parse a uri http://<host>:<port(optional)><filename>. If the port part is
@@ -45,11 +46,6 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
   return 0;
 }
 
-
-<<<<<<< HEAD
-void printSAin(struct sockaddr_in sockaddr);
-=======
->>>>>>> peter
 
 int main(int argc, char *argv[]) {
     printf("%s%s%s", user_agent_hdr, accept_hdr, accept_encoding_hdr);
@@ -107,23 +103,23 @@ int main(int argc, char *argv[]) {
 
 
 
-<<<<<<< HEAD
+
         printf("Method: %s\n", method);
         printf("URI: %s\n", uri);
         printf("Version: %s\n", version);
-=======
+
         // sscanf(buf, "%s %s %s", method, uri, version);
 
         // printSAin(&clientaddr);
         // printf("Method: %s\n", method);
         // printf("URI: %s\n", uri);
         // printf("Version: %s\n", version);
->>>>>>> peter
+
 
         Close(connfd);
     }
     return 0;
-<<<<<<< HEAD
+
 }
 
 void printSAin(struct sockaddr_in sockaddr) {
@@ -132,6 +128,3 @@ void printSAin(struct sockaddr_in sockaddr) {
     // Transfrom addr to ip address
     //printf("IP: %s\n", inet_ntoa(sockaddr.sin_addr.s_addr));
 }
-=======
-}
->>>>>>> peter
