@@ -51,10 +51,18 @@ int main(int argc, char *argv[]) {
     printf("%s%s%s", user_agent_hdr, accept_hdr, accept_encoding_hdr);
     int listenfd, connfd, port, clientlen;
     struct sockaddr_in clientaddr;
+<<<<<<< HEAD
     char buf[MAXLINE];
     char method[MAXLINE];
     char uri[MAXLINE];
     char version[MAXLINE];
+=======
+    char buf[MAX_LINE];
+
+    char method[MAX_LINE], uri[MAX_LINE], version[MAX_LINE];
+
+
+>>>>>>> andy
     rio_t rio;
 
 
@@ -64,25 +72,29 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    printf("1: %s\n2: %s\n", argv[0], argv[1]);
+    // printf("1: %s\n2: %s\n", argv[0], argv[1]);
 
 
     port = atoi(argv[1]);
 
     listenfd = Open_listenfd(port);
-    printf("test1\n");
     while (1) {
         clientlen = sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
-        printSAin(clientaddr);
+        // printSAin(clientaddr);
 
         char host_buf[MAXLINE];
         char request_buf[MAXLINE];
 
+        // Read request method, uri, and version
         Rio_readinitb(&rio, connfd);
         Rio_readlineb(&rio, buf, MAXLINE);
+        sscanf("%s %s %s\n", method, uri, version);
 
+        printf("%s\n", buf);
+
+<<<<<<< HEAD
         sscanf(buf, "%s %s %s", method, uri, version);
 
         if (!strcmp(method, "GET")) {
@@ -102,11 +114,18 @@ int main(int argc, char *argv[]) {
         // printf("%s\n\n\n\n%s\n", host_buf, request_buf);
 
 
+=======
+        sprintf(host_buf, host_hdr, "www.cmu.edu");
+        sprintf(request_buf, "%s%s%s%s%s%s",
+            host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr,
+            connection_hdr, proxy_connection_hdr);
+
+        // printf("%s\n", request_buf);
+
+        // Rio_writen(connfd, "HTTP/1.0 404 NotFound\r\n", MAX_LINE);
+>>>>>>> andy
 
 
-        printf("Method: %s\n", method);
-        printf("URI: %s\n", uri);
-        printf("Version: %s\n", version);
 
         // sscanf(buf, "%s %s %s", method, uri, version);
 
@@ -126,5 +145,5 @@ void printSAin(struct sockaddr_in sockaddr) {
     printf("Port: %d\n", sockaddr.sin_port);
     printf("Addr: %u\n", sockaddr.sin_addr.s_addr);
     // Transfrom addr to ip address
-    //printf("IP: %s\n", inet_ntoa(sockaddr.sin_addr.s_addr));
+    printf("IP: %s\n", inet_ntoa(sockaddr.sin_addr));
 }
