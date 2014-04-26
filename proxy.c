@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
     int listenfd, connfd, port, clientlen;
     struct sockaddr_in clientaddr;
     char buf[MAXLINE];
-    char method[MAXLINE];
-    char uri[MAXLINE];
-    char version[MAXLINE];
+    //char method[MAXLINE];
+    //char uri[MAXLINE];
+    //char version[MAXLINE];
     rio_t rio;
 
 

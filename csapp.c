@@ -1,4 +1,5 @@
 /* $begin csapp.c */
+#include <stdio.h>
 #include "csapp.h"
 
 /* Updated with a reentrant open_clientfd_r function */
