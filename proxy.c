@@ -14,7 +14,7 @@ static const char *accept_encoding_hdr = "Accept-Encoding: gzip, deflate\r\n";
 static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 
-void printSAin(struct sockaddr_in* sockaddr);
+void printSAin(struct sockaddr_in sockaddr);
 
 int main(int argc, char *argv[]) {
     printf("%s%s%s", user_agent_hdr, accept_hdr, accept_encoding_hdr);
@@ -41,9 +41,10 @@ int main(int argc, char *argv[]) {
     listenfd = Open_listenfd(port);
     printf("test1\n");
     while (1) {
-        printf("while\n");
         clientlen = sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
+
+        printSAin(clientaddr);
 
         char host_buf[MAXLINE];
         char request_buf[MAXLINE];
@@ -58,21 +59,18 @@ int main(int argc, char *argv[]) {
 
         printf("%s\n\n\n\n%s\n", host_buf, request_buf);
 
-        
-        
-        // sscanf(buf, "%s %s %s", method, uri, version);
-
-        // printSAin(&clientaddr);
-        // printf("Method: %s\n", method);
-        // printf("URI: %s\n", uri);
-        // printf("Version: %s\n", version);
+        printf("Method: %s\n", method);
+        printf("URI: %s\n", uri);
+        printf("Version: %s\n", version);
 
 		Close(connfd);
     }
     return 0;
 }
 
-void printSAin(struct sockaddr_in* sockaddr) {
-    printf("Port: %d\n", sockaddr->sin_port);
-    printf("Addr: %u\n", sockaddr->sin_addr.s_addr);
+void printSAin(struct sockaddr_in sockaddr) {
+    printf("Port: %d\n", sockaddr.sin_port);
+    printf("Addr: %u\n", sockaddr.sin_addr.s_addr);
+    // Transfrom addr to ip address
+    //printf("IP: %s\n", inet_ntoa(sockaddr.sin_addr.s_addr));
 }
