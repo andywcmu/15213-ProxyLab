@@ -20,7 +20,10 @@ int main(int argc, char *argv[]) {
     printf("%s%s%s", user_agent_hdr, accept_hdr, accept_encoding_hdr);
     int listenfd, connfd, port, clientlen;
     struct sockaddr_in clientaddr;
-    char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
+    char buf[MAXLINE];
+    char method[MAXLINE];
+    char uri[MAXLINE];
+    char version[MAXLINE];
     rio_t rio;
 
 
@@ -48,10 +51,10 @@ int main(int argc, char *argv[]) {
         Rio_readinitb(&rio, connfd);
         Rio_readlineb(&rio, buf, MAXLINE);
 
-        sscanf(host_buf, host_hdr, "www.cmu.edu");
-        sscanf(request_buf, "%s%s%s%s%s%s", host_buf, user_agent_hdr,
+        sprintf(host_buf, host_hdr, "www.cmu.edu");
+        sprintf(request_buf, "%s%s%s%s%s%s", host_buf, user_agent_hdr,
         	accept_hdr, accept_encoding_hdr, connection_hdr,
-        	proxy_connection_hdr)
+        	proxy_connection_hdr);
 
         
         
