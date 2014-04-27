@@ -79,6 +79,8 @@ int main(int argc, char *argv[]) {
 
     struct cache_header *C = cache_init();
 
+    cache_insert(C, "andy", "hahahahahaha");
+
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
