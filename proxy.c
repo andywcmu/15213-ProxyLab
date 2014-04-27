@@ -5,6 +5,8 @@
 
 /* Recommended max cache and object sizes */
 #define MAX_LINE 1024
+#define MAX_CACHE_SIZE 1049000
+#define MAX_OBJECT_SIZE 102400
 
 /* You won't lose style points for including these long lines in your code */
 static const char *host_hdr = "Host: %s\r\n";
@@ -65,6 +67,7 @@ int main(int argc, char *argv[]) {
     char host[MAXLINE], suffix[MAXLINE];
 
     char buf[MAXLINE];
+    char object_buf[MAX_OBJECT_SIZE];
 
     rio_t clientrio, serverrio;
 
@@ -109,6 +112,7 @@ int main(int argc, char *argv[]) {
             if (object != NULL) {
                 Rio_writen(clientfd, object, strlen(object));
             }
+            /* not in cache */
             else {
                 parse_uri(uri, host, &serverport, suffix);
 
@@ -121,10 +125,14 @@ int main(int argc, char *argv[]) {
                 Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
 
                 /* Get from server and send to client */
-                size_t buflen;
-                while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
-                    Rio_writen(clientfd, buf, buflen);
+                // size_t buflen;
+                // while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
+                while(Rio_readlineb(&serverrio, buf, MAXLINE) != 0){
+                    // Rio_writen(clientfd, buf, buflen);
+                    strcat(object_buf, buf);
                 }
+
+                Rio_written(clientfd, object_buf, strlen(object_buf));
 
                 Close(serverfd);
             }
