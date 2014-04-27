@@ -13,3 +13,8 @@ char *cache_find (struct cache_header *C, char *uri);
  * Add a data object to the cache.
  */
 void cache_insert (struct cache_header *C, char *uri, char *object);
+
+/*
+ * Print the cache.
+ */
+void cache_print (struct cache_header *C);

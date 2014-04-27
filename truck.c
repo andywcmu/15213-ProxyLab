@@ -66,6 +66,7 @@ void cache_evict (struct cache_header *C) {
 	ASSERT (C->cache_block_num >= 0);
 
 	C->start = C->start->next;
+	Free(start->object);
 	Free(start);
 	return;
 }
@@ -78,6 +79,7 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 		// In our implementation, this will happen only if the cache
 		// consists of exactly one block.
 		if (C->cache_block_num == 1) {
+			Free(C->start->object);
 			C->end = C->start;
 			C->cache_block_num = 0;
 			ASSERT (C->cache_size == cb->object_size);
@@ -91,6 +93,7 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 	else {
 		C->cache_block_num -= 1;
 		C->cache_size -= cb->object_size;
+		Free(cb->object);
 		ASSERT (0 <= C->cache_size && C->cache_size <= MAX_CACHE_SIZE);
 		ASSERT (C->cache_block_num >= 0);
 		cb->object_name = cb->next->object_name;
@@ -129,10 +132,14 @@ void cache_insert (struct cache_header *C, char *uri, char *object) {
 	REQUIRES (C != NULL);
 	size_t object_size = strlen(object);
 	if (object_size > MAX_OBJECT_SIZE) return;
+
+	char *copied_object = Malloc (object_size);
+	memcpy(copied_object, object, object_size);
+
 	struct cache_block *new = Malloc (sizeof(struct cache_block));
 	new->object_name = uri;
 	new->object_size = object_size;
-	new->object = object;
+	new->object = copied_object;
 	cache_add_to_end(C, new);
 	return;
 }

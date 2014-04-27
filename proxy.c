@@ -73,11 +73,14 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    struct cache_header *C = cache_init();
+
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
     
     while (1) {
+        cache_print(C);
         clientlen = sizeof(clientaddr);
         clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
@@ -100,23 +103,30 @@ int main(int argc, char *argv[]) {
 
         /* If the request method is GET */
         else {
-            parse_uri(uri, host, &serverport, suffix);
-
-            char to_server_buf[MAXLINE];
-            create_headers_to_server(to_server_buf, host, suffix);
-
-            /* Send to server */
-            serverfd = Open_clientfd(host, serverport);
-            Rio_readinitb(&serverrio, serverfd);
-            Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
-
-            /* Get from server and send to client */
-            size_t buflen;
-            while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
-                Rio_writen(clientfd, buf, buflen);
+            /* see if already in cache */
+            char *object = cache_find(C, uri);
+            if (object != NULL) {
+                Rio_writen(clientfd, object, strlen(object));
             }
+            else {
+                parse_uri(uri, host, &serverport, suffix);
 
-            Close(serverfd);
+                char to_server_buf[MAXLINE];
+                create_headers_to_server(to_server_buf, host, suffix);
+
+                /* Send to server */
+                serverfd = Open_clientfd(host, serverport);
+                Rio_readinitb(&serverrio, serverfd);
+                Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
+
+                /* Get from server and send to client */
+                size_t buflen;
+                while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
+                    Rio_writen(clientfd, buf, buflen);
+                }
+
+                Close(serverfd);
+            }
         }
 
         Close(clientfd);
