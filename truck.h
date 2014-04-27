@@ -1,16 +1,12 @@
 /* interface */
-<<<<<<< HEAD
 /*
  * Init a cache object.
  */
-struct cache_header *init ();
+struct cache_header *cache_init ();
 
 /*
  * Return a pointer to the data object.
  */
-=======
-struct cache_header *cache_init ();
->>>>>>> FETCH_HEAD
 char *cache_find (struct cache_header *C, char *uri);
 
 /*
