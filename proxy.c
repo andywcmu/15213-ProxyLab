@@ -13,7 +13,7 @@ static const char *accept_hdr = "Accept: text/html,application/xhtml+xml,applica
 static const char *accept_encoding_hdr = "Accept-Encoding: gzip, deflate\r\n";
 static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
-static const char *http_get_request = "GET %s HTTP/1.0\r\n";
+static const char *get_request_hdr = "GET %s HTTP/1.0\r\n";
 
 
 /*
@@ -39,29 +39,34 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
 
   strcpy(suffix, uri);
 
-  // if (suffix[strlen(suffix) - 1] == '/') {
-      // strcat(suffix, "home.html");
-  // }
-
   return 0;
 }
 
+inline static void create_headers_to_server (char *to_server_buf, char *host, char *suffix) {
+    char host_buf[MAXLINE];
+    char get_request_buf[MAXLINE];
+    sprintf(get_request_buf, get_request_hdr, suffix);
+    sprintf(host_buf, host_hdr, host);
+    sprintf(to_server_buf, "%s%s%s%s%s%s%s\r\n",
+        get_request_buf,
+        host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr, connection_hdr,
+        proxy_connection_hdr);
+    return;
+}
 
 
 int main(int argc, char *argv[]) {
-    printf("%s%s%s", user_agent_hdr, accept_hdr, accept_encoding_hdr);
-    int listenfd, connfd, listenport, clientlen;
-    int serverfd, serverport;
+    int listenfd, clientfd, serverfd;
+    int listenport, serverport;
+    size_t clientlen;
     struct sockaddr_in clientaddr;
-    char buf[MAXLINE];
-    char method[MAXLINE];
-    char uri[MAXLINE];
-    char version[MAXLINE];
-    char host[MAXLINE];
-    char suffix[MAXLINE];
-    rio_t clientrio, serverrio;
-    int i;
+    
+    char method[MAXLINE], uri[MAXLINE], version[MAXLINE];
+    char host[MAXLINE], suffix[MAXLINE];
 
+    char buf[MAXLINE];
+
+    rio_t clientrio, serverrio;
 
     /* Check command line args */
     if (argc != 2) {
@@ -72,20 +77,18 @@ int main(int argc, char *argv[]) {
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
+    
     while (1) {
-        // printf("While\n");
         clientlen = sizeof(clientaddr);
-        connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
+        clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
-        char host_buf[MAXLINE];
-        char get_buf[MAXLINE];
-        char request_buf[MAXLINE];
-
-        Rio_readinitb(&clientrio, connfd);
-
+        /* Read method, uri, version + other key:value pairs from client */
+        // Read method, uri, version
+        Rio_readinitb(&clientrio, clientfd);
         Rio_readlineb(&clientrio, buf, MAXLINE);
         sscanf(buf, "%s %s %s", method, uri, version);
 
+        // Read other key:value pairs
         while(strcmp(buf, "\r\n")) {
             // TODO forward other headers
             Rio_readlineb(&clientrio, buf, MAXLINE);
@@ -94,43 +97,30 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(method, "GET")) {
             fprintf(stderr, "method %s not yet implemented\n", method);
-        } else {
+        }
 
-
+        /* If the request method is GET */
+        else {
             parse_uri(uri, host, &serverport, suffix);
 
-            // printf("host: %s\n", host);
-            // printf("port: %d\n", serverport);
-            // printf("suffix: %s\n", suffix);
-            // printf("b");
+            char to_server_buf[MAXLINE];
+            create_headers_to_server(to_server_buf, host, suffix);
 
-            // now open connection with server
+            /* Send to server */
             serverfd = Open_clientfd(host, serverport);
-            // printf("c");
             Rio_readinitb(&serverrio, serverfd);
+            Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
 
-            // construct the http request
-            sprintf(get_buf, http_get_request, suffix);
-            sprintf(host_buf, host_hdr, host);
-            sprintf(request_buf, "%s%s%s%s%s%s\r\n",
-                host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr, connection_hdr,
-                proxy_connection_hdr);
-
-            // printf("\na\n");
-
-
-            // send the http request
-            Rio_writen(serverfd, get_buf, strlen(get_buf));
-            Rio_writen(serverfd, request_buf, strlen(request_buf));
-
-            while((i = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
-                Rio_writen(connfd, buf, i);
+            /* Get from server and send to client */
+            size_t buflen;
+            while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
+                Rio_writen(clientfd, buf, buflen);
             }
 
             Close(serverfd);
         }
 
-        Close(connfd);
+        Close(clientfd);
     }
     return 0;
 }
