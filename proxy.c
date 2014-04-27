@@ -94,7 +94,6 @@ int main(int argc, char *argv[]) {
             Rio_readlineb(&clientrio, buf, MAXLINE);
         }
 
-
         if (strcmp(method, "GET")) {
             fprintf(stderr, "method %s not yet implemented\n", method);
         }
