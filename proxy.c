@@ -15,7 +15,6 @@ static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 static const char *http_get_request = "GET %s HTTP/1.0\r\n";
 
-void printSAin(struct sockaddr_in sockaddr);
 
 /*
  * parse a uri http://<host>:<port(optional)><filename>. If the port part is
@@ -40,12 +39,13 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
 
   strcpy(suffix, uri);
 
-  if (suffix[strlen(suffix) - 1] == '/') {
-      strcat(suffix, "~213.html");
-  }
+  // if (suffix[strlen(suffix) - 1] == '/') {
+      // strcat(suffix, "home.html");
+  // }
 
   return 0;
 }
+
 
 
 int main(int argc, char *argv[]) {
@@ -61,8 +61,6 @@ int main(int argc, char *argv[]) {
     char suffix[MAXLINE];
     rio_t clientrio, serverrio;
 
-    rio_t rio;
-
 
     /* Check command line args */
     if (argc != 2) {
@@ -73,32 +71,27 @@ int main(int argc, char *argv[]) {
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
-    port = atoi(argv[1]);
-
-    listenfd = Open_listenfd(port);
-
     while (1) {
-        printf("while\n");
         clientlen = sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
-
-        // printSAin(clientaddr);
 
         char host_buf[MAXLINE];
         char get_buf[MAXLINE];
         char request_buf[MAXLINE];
 
         Rio_readinitb(&clientrio, connfd);
+
         Rio_readlineb(&clientrio, buf, MAXLINE);
-        // Read request method, uri, and version
-        Rio_readinitb(&rio, connfd);
-        Rio_readlineb(&rio, buf, MAXLINE);
-        sscanf("%s %s %s\n", method, uri, version);
-
-        printf("%s\n", buf);
-
-
         sscanf(buf, "%s %s %s", method, uri, version);
+
+        while(1) {
+            int i = Rio_readlineb(&clientrio, buf, MAXLINE);
+            if (i == 2) {
+                break;
+            }
+            printf("%s", buf);
+        }
+
 
         if (strcmp(method, "GET")) {
             fprintf(stderr, "method %s not yet implemented\n", method);
@@ -107,56 +100,39 @@ int main(int argc, char *argv[]) {
 
             parse_uri(uri, host, &serverport, suffix);
 
-            continue;
-        }
-
-
-            printf("host: %s\n", host);
-            printf("port: %d\n", serverport);
-            printf("suffix: %s\n", suffix);
-
+            // printf("host: %s\n", host);
+            // printf("port: %d\n", serverport);
+            // printf("suffix: %s\n", suffix);
+            // printf("b");
 
             // now open connection with server
             serverfd = Open_clientfd(host, serverport);
+            // printf("c");
             Rio_readinitb(&serverrio, serverfd);
 
             // construct the http request
             sprintf(get_buf, http_get_request, suffix);
-
             sprintf(host_buf, host_hdr, host);
-            sprintf(request_buf, "%s%s%s%s%s%s%s",
+            sprintf(request_buf, "%s%s%s%s%s%s\r\n",
                 host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr, connection_hdr,
-                proxy_connection_hdr, get_buf);
+                proxy_connection_hdr);
+
+            // printf("\na\n");
+
 
             // send the http request
+            Rio_writen(serverfd, get_buf, strlen(get_buf));
             Rio_writen(serverfd, request_buf, strlen(request_buf));
 
-            // read stuff from server
-            while(1){
-                Rio_readlineb(&serverrio, buf, MAXLINE);
-
-                printf("Received: %s\n", buf);
-
-                Rio_writen(connfd, buf, strlen(buf));
+            int i;
+            while((i = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
+                Rio_writen(connfd, buf, i);
             }
 
             Close(serverfd);
         }
-        sprintf(host_buf, host_hdr, "www.cmu.edu");
-        sprintf(request_buf, "%s%s%s%s%s%s",
-            host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr,
-            connection_hdr, proxy_connection_hdr);
 
         Close(connfd);
     }
     return 0;
-}
-
-}
-
-void printSAin(struct sockaddr_in sockaddr) {
-    printf("Port: %d\n", sockaddr.sin_port);
-    printf("Addr: %u\n", sockaddr.sin_addr.s_addr);
-    // Transfrom addr to ip address
-    printf("IP: %s\n", inet_ntoa(sockaddr.sin_addr));
 }
