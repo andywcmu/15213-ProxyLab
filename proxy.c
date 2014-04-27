@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
     char host[MAXLINE];
     char suffix[MAXLINE];
     rio_t clientrio, serverrio;
+    int i;
 
 
     /* Check command line args */
@@ -72,6 +73,7 @@ int main(int argc, char *argv[]) {
 
     listenfd = Open_listenfd(listenport);
     while (1) {
+        // printf("While\n");
         clientlen = sizeof(clientaddr);
         connfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
@@ -84,12 +86,9 @@ int main(int argc, char *argv[]) {
         Rio_readlineb(&clientrio, buf, MAXLINE);
         sscanf(buf, "%s %s %s", method, uri, version);
 
-        while(1) {
-            int i = Rio_readlineb(&clientrio, buf, MAXLINE);
-            if (i == 2) {
-                break;
-            }
-            printf("%s", buf);
+        while(strcmp(buf, "\r\n")) {
+            // TODO forward other headers
+            Rio_readlineb(&clientrio, buf, MAXLINE);
         }
 
 
@@ -124,7 +123,6 @@ int main(int argc, char *argv[]) {
             Rio_writen(serverfd, get_buf, strlen(get_buf));
             Rio_writen(serverfd, request_buf, strlen(request_buf));
 
-            int i;
             while((i = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
                 Rio_writen(connfd, buf, i);
             }
@@ -132,7 +130,7 @@ int main(int argc, char *argv[]) {
             Close(serverfd);
         }
 
-		Close(connfd);
+        Close(connfd);
     }
     return 0;
 }
