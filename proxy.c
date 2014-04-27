@@ -2,8 +2,6 @@
 #include "csapp.h"
 
 /* Recommended max cache and object sizes */
-#define MAX_CACHE_SIZE 1049000
-#define MAX_OBJECT_SIZE 102400
 #define MAX_LINE 1024
 
 /* You won't lose style points for including these long lines in your code */
