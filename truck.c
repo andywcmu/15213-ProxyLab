@@ -3,11 +3,10 @@
 
 #include "csapp.h"
 #include "truck.h"
+#include "contracts.h"
 
 #define MAX_CACHE_SIZE 1049000
 #define MAX_OBJECT_SIZE 102400
-
-typedef int timestamp
 
 struct cache_header {
 	struct cache_block *start;
@@ -21,7 +20,7 @@ struct cache_block {
 	size_t object_size;
 	char *object_name;
 	char *object;
-}
+};
 
 void cache_print (struct cache_header *C) {
 	REQUIRES (C != NULL);
@@ -29,14 +28,14 @@ void cache_print (struct cache_header *C) {
 	fprintf(stdout, "####### START #######\n");
 	struct cache_block *ptr = C->start;
 	while (ptr != C->end) {
-		fprintf(stdout, "%s\t%u\n", ptr->object_name, ptr->object_size);
+		fprintf(stdout, "%s\t%zu\n", ptr->object_name, ptr->object_size);
 	}
 	fprintf(stdout, "######## END ########\n");
 }
 
 struct cache_header *cache_init () {
-	struct cache_header *new = Malloc (sizeof(cache_header));
-	struct cache_block *dummy = Malloc (sizeof(cache_block));
+	struct cache_header *new = Malloc (sizeof(struct cache_header));
+	struct cache_block *dummy = Malloc (sizeof(struct cache_block));
 	new->start = dummy;
 	new->end = dummy;
 	new->cache_size = 0;
@@ -45,9 +44,9 @@ struct cache_header *cache_init () {
 }
 
 void cache_add_to_end (struct cache_header *C, struct cache_block *cb) {
-	REQRIRES (C != NULL);
-	REQRIRES (C->end != NULL);
-	REQRIRES (cb != NULL);
+	REQUIRES (C != NULL);
+	REQUIRES (C->end != NULL);
+	REQUIRES (cb != NULL);
 	C->end->object_name = cb->object_name;
 	C->end->object = cb->object;
 	C->end->object_size = cb->object_size;
@@ -61,7 +60,7 @@ void cache_evict (struct cache_header *C) {
 	REQUIRES(C != NULL);
 	REQUIRES(C->cache_block_num != 0);
 	struct cache_block *start = C->start;
-	C->object_size -= start->object_size;
+	C->cache_size -= start->object_size;
 	C->cache_block_num -= 1;
 	ASSERT (0 <= C->cache_size && C->cache_size <= MAX_CACHE_SIZE);
 	ASSERT (C->cache_block_num >= 0);
@@ -72,8 +71,8 @@ void cache_evict (struct cache_header *C) {
 }
 
 void cache_delete (struct cache_header *C, struct cache_block *cb) {
-	REQRIRES (C != NULL);
-	REQRIRES (cb != NULL);
+	REQUIRES (C != NULL);
+	REQUIRES (cb != NULL);
 	/* if the node is the last node */
 	if (cb->next == C->end) {
 		// In our implementation, this will happen only if the cache
@@ -103,7 +102,7 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 }
 
 char *cache_find (struct cache_header *C, char *uri) {
-	REQRIRES (C != NULL);
+	REQUIRES (C != NULL);
 	struct cache_block *ptr = C->start;
 	while (ptr != C->end) {
 		if (!strcmp(uri, ptr->object_name)) {
@@ -127,7 +126,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 }
 
 void cache_insert (struct cache_header *C, char *uri, char *object) {
-	REQRIRES (C != NULL);
+	REQUIRES (C != NULL);
 	size_t object_size = strlen(object);
 	if (object_size > MAX_OBJECT_SIZE) return;
 	struct cache_block *new = Malloc (sizeof(struct cache_block));
