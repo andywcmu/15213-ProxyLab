@@ -29,6 +29,7 @@ void cache_print (struct cache_header *C) {
 	struct cache_block *ptr = C->start;
 	while (ptr != C->end) {
 		fprintf(stdout, "%s\t%zu\n", ptr->object_name, ptr->object_size);
+		ptr = ptr->next;
 	}
 	fprintf(stdout, "######## END ########\n");
 }
@@ -123,6 +124,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 			}
 
 		}
+		ptr = ptr->next;
 	}
 	/* not found */
 	return NULL;
