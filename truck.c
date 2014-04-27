@@ -9,14 +9,14 @@
 
 typedef int timestamp
 
-struct cache_header () {
+struct cache_header {
 	struct cache_block *start;
 	struct cache_block *end;
 	int cache_size;
 	int cache_block_num;
 };
 
-struct cache_block () {
+struct cache_block {
 	struct cache_block *next;
 	size_t object_size;
 	char *object_name;
