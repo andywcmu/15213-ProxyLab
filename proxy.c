@@ -67,6 +67,7 @@ int main(int argc, char *argv[]) {
     char host[MAXLINE], suffix[MAXLINE];
 
     char buf[MAXLINE];
+    char object_buf[MAX_OBJECT_SIZE];
 
     rio_t clientrio, serverrio;
 
@@ -84,6 +85,8 @@ int main(int argc, char *argv[]) {
     
     while (1) {
         cache_print(C);
+
+        strcpy(object_buf, "");
 
         clientlen = sizeof(clientaddr);
         clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
@@ -127,7 +130,7 @@ int main(int argc, char *argv[]) {
                 /* Get from server and send to client */
                 // size_t buflen;
                 // while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
-                char object_buf[MAX_OBJECT_SIZE];
+                
                 while(Rio_readlineb(&serverrio, buf, MAXLINE) != 0){
                     // Rio_writen(clientfd, buf, buflen);
                     strcat(object_buf, buf);
