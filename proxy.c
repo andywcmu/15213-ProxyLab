@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "csapp.h"
+#include "truck.h"
 #include "contracts.h"
 
 /* Recommended max cache and object sizes */
