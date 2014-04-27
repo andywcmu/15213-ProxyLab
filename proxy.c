@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
                     strcat(object_buf, buf);
                 }
 
-                Rio_written(clientfd, object_buf, strlen(object_buf));
+                Rio_writen(clientfd, object_buf, strlen(object_buf));
 
                 Close(serverfd);
             }
