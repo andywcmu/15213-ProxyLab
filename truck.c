@@ -4,9 +4,6 @@
 #include "csapp.h"
 #include "truck.h"
 
-
-
-
 struct cache_header {
 	struct cache_block *start;
 	struct cache_block *end;
@@ -26,6 +23,10 @@ struct cache_header *init () {
 	new->start = dummy;
 	new->end = dummy;
 	return new;
+}
+
+char *cache_find (char *uri) {
+	
 }
 
 
