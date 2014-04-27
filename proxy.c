@@ -86,8 +86,6 @@ int main(int argc, char *argv[]) {
     while (1) {
         cache_print(C);
 
-        strcpy(object_buf, "");
-
         clientlen = sizeof(clientaddr);
         clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
@@ -137,6 +135,11 @@ int main(int argc, char *argv[]) {
                 }
 
                 Rio_writen(clientfd, object_buf, strlen(object_buf));
+                /* add to cache */
+                cache_insert (C, uri, object_buf);
+
+                /* clear the buffer */
+                strcpy(object_buf, "");
 
                 Close(serverfd);
             }
