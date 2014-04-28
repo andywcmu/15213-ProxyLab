@@ -109,12 +109,12 @@ int main(int argc, char *argv[]) {
 
         /* If the request method is GET */
         else {
-            char *object = cache_find(C, uri);
+            struct cache_block *block = cache_find(C, uri);
             // fprintf(stdout, "uri: %s\n", uri);
             /* found in cache */
-            if (object != NULL) {
+            if (block != NULL) {
                 fprintf(stdout, "found in cache!\n");
-                Rio_writen(clientfd, object, strlen(object));
+                Rio_writen(clientfd, block->object, block->object_size);
             }
             /* not in cache */
             else {
@@ -147,16 +147,11 @@ int main(int argc, char *argv[]) {
                     else {
                         strcat(object_buf, buf);
                         object_size += buflen;
-                        fprintf(stderr, "%zu\t%zu\t%zu\n", buflen, strlen(object_buf), object_size);
-                        // if (strlen(object_buf) != object_size) {
-                        //     // fprintf(stderr, "strlen(object_buf): %zu\tobject_size: %zu\n", strlen(object_buf), object_size);
-                        //     ASSERT(0);
-                        // }
                     }
                 }
 
                 /* add to cache */
-                if (cache_insert_flag) cache_insert (C, uri, object_buf);
+                if (cache_insert_flag) cache_insert (C, uri, object_buf, object_size);
 
                 /* clear the buffer */
                 strcpy(object_buf, "");

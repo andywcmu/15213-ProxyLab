@@ -107,7 +107,7 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 	return;
 }
 
-char *cache_find (struct cache_header *C, char *uri) {
+struct cache_block *cache_find (struct cache_header *C, char *uri) {
 	REQUIRES (C != NULL);
 	struct cache_block *ptr = C->start;
 	while (ptr != C->end) {
@@ -127,7 +127,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 
 				cache_delete(C, ptr);
 				cache_add_to_end(C, old);
-				return old->object;
+				return old;
 			}
 
 		}
@@ -137,19 +137,19 @@ char *cache_find (struct cache_header *C, char *uri) {
 	return NULL;
 }
 
-void cache_insert (struct cache_header *C, char *uri, char *object) {
+void cache_insert (struct cache_header *C, char *uri, char *object, size_t object_size) {
 	REQUIRES (C != NULL);
-	size_t object_size = strlen(object);
+
 	if (object_size > MAX_OBJECT_SIZE) return;
 
-	char *copied_object = Malloc (object_size);
+	char *copied_object = Malloc(object_size);
 	memcpy(copied_object, object, object_size);
 
 	size_t object_uri_size = strlen(uri);
-	char *copied_object_uri = Malloc (object_uri_size);
+	char *copied_object_uri = Malloc(object_uri_size);
 	memcpy(copied_object_uri, uri, object_uri_size);
 
-	struct cache_block *new = Malloc (sizeof(struct cache_block));
+	struct cache_block *new = Malloc(sizeof(struct cache_block));
 	new->object_name = copied_object_uri;
 	new->object_size = object_size;
 	new->object = copied_object;
