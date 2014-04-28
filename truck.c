@@ -130,6 +130,10 @@ void cache_insert (struct cache_header *C, char *uri, char *object, size_t objec
 
 	if (object_size > MAX_OBJECT_SIZE) return;
 
+	while (object_size + C->cache_size > MAX_CACHE_SIZE) {
+		cache_evict(C);
+	}
+
 	char *copied_object = Malloc(object_size);
 	memcpy(copied_object, object, object_size);
 
