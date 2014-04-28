@@ -23,9 +23,11 @@ static const char *get_request_hdr = "GET %s HTTP/1.0\r\n";
  */
 int parse_uri(char *uri, char *host, int *port, char *suffix)
 {
+  char uricpy[MAXLINE];
+  strcpy(uricpy, uri);
   *port = 80;
 
-  char *ptr = uri + 7;
+  char *ptr = uricpy + 7;
   while (*ptr != '/' && *ptr != ':') {
     *host = *ptr;
     ptr++;
@@ -40,7 +42,6 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
   }
 
   strcpy(suffix, ptr);
-  strcat(uri, suffix);
 
   return 0;
 }
