@@ -147,7 +147,10 @@ int main(int argc, char *argv[]) {
                     else {
                         strcat(object_buf, buf);
                         object_size += buflen;
-                        ASSERT(strlen(object_buf) == object_size);
+                        if (strlen(object_buf) != object_size) {
+                            fprintf(stderr, "strlen(object_buf): %zu\tobject_size: %zu\n", strlen(object_buf), object_size);
+                            ASSERT(0);
+                        }
                     }
                 }
 
