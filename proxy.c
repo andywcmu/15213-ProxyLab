@@ -83,6 +83,8 @@ int main(int argc, char *argv[]) {
     listenfd = Open_listenfd(listenport);
     
     while (1) {
+        cache_print(C);
+
         clientlen = sizeof(clientaddr);
         clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
