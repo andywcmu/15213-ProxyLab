@@ -120,13 +120,17 @@ char *cache_find (struct cache_header *C, char *uri) {
 			}
 			// otherwise, move it to the end and return
 			else {
-				char *ret = ptr->object;
-				struct cache_block *original = ptr;
+				struct cache_block *old = Malloc (sizeof(struct cache_block));
+				old->object_name = ptr->object_name;
+				old->object_size = ptr->object_size;
+				old->object = ptr->object;
+				old->next = ptr->next;
+
 				cache_delete(C, ptr);
 				cache_print(C);
-				cache_add_to_end(C, original);
+				cache_add_to_end(C, old);
 				cache_print(C);
-				return ret;
+				return old->object;
 			}
 
 		}
