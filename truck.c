@@ -122,6 +122,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 			else {
 				char *ret = ptr->object;
 				cache_delete(C, ptr);
+				cache_print(C);
 				cache_add_to_end(C, ptr);
 				return ret;
 			}
