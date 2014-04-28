@@ -83,8 +83,6 @@ int main(int argc, char *argv[]) {
     listenfd = Open_listenfd(listenport);
     
     while (1) {
-        cache_print(C);
-
         clientlen = sizeof(clientaddr);
         clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
@@ -110,7 +108,6 @@ int main(int argc, char *argv[]) {
         /* If the request method is GET */
         else {
             struct cache_block *block = cache_find(C, uri);
-            // fprintf(stdout, "uri: %s\n", uri);
             /* found in cache */
             if (block != NULL) {
                 fprintf(stdout, "found in cache!\n");
@@ -130,9 +127,6 @@ int main(int argc, char *argv[]) {
                 Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
 
                 /* Get from server and send to client */
-                // size_t buflen;
-                // while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
-                
                 size_t object_size = 0;
                 size_t buflen;
                 int cache_insert_flag = 1;
