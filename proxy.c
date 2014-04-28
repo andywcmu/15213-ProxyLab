@@ -79,6 +79,13 @@ int main(int argc, char *argv[]) {
 
     struct cache_header *C = cache_init();
 
+    cache_insert (C, "andy", "lalala");
+    cache_insert (C, "mamama", "hahahah");
+    cache_insert (C, "yoyoyo", "wow");
+    if (cache_find(C, "mamama") != NULL) {
+        fprintf(stderr, "found mamama!\n");
+    }
+
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
