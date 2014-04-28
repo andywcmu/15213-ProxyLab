@@ -114,6 +114,8 @@ int main(int argc, char *argv[]) {
             /* found in cache */
             if (block != NULL) {
                 fprintf(stdout, "found in cache!\n");
+                size_t object_size = block->object_size;
+                char *obj = block->object;
                 Rio_writen(clientfd, block->object, block->object_size);
             }
             /* not in cache */
