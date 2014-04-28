@@ -5,7 +5,6 @@
 
 /* Recommended max cache and object sizes */
 #define MAX_LINE 1024
-#define MAX_CACHE_SIZE 1049000
 #define MAX_OBJECT_SIZE 102400
 
 /* You won't lose style points for including these long lines in your code */
@@ -134,14 +133,26 @@ int main(int argc, char *argv[]) {
                 // size_t buflen;
                 // while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
                 
-                while(Rio_readlineb(&serverrio, buf, MAXLINE) != 0){
-                    // Rio_writen(clientfd, buf, buflen);
-                    strcat(object_buf, buf);
+                size_t object_size = 0;
+                size_t buflen;
+                int cache_insert_flag = 1;
+                
+                while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
+                    Rio_writen(clientfd, buf, buflen);
+                    if (object_size + buflen > MAX_OBJECT_SIZE) {
+                        // the object is already too big.
+                        // no need to do strcat and cache_insert.
+                        cache_insert_flag = 0;
+                    }
+                    else {
+                        strcat(object_buf, buf);
+                        object_size += buflen;
+                        ASSERT(strlen(object_buf) == object_size);
+                    }
                 }
 
-                Rio_writen(clientfd, object_buf, strlen(object_buf));
                 /* add to cache */
-                cache_insert (C, uri, object_buf);
+                if (cache_insert_flag) cache_insert (C, uri, object_buf);
 
                 /* clear the buffer */
                 strcpy(object_buf, "");
