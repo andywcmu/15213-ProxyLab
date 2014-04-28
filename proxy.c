@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
                         cache_insert_flag = 0;
                     }
                     else {
-                        strcat(object_buf, buf);
+                        strcpy(object_buf + object_size, buf);
                         object_size += buflen;
                     }
                 }
