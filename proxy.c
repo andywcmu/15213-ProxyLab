@@ -80,8 +80,11 @@ int main(int argc, char *argv[]) {
     struct cache_header *C = cache_init();
 
     cache_insert (C, "andy", "lalala");
+    cache_print(C);
     cache_insert (C, "mamama", "hahahah");
+    cache_print(C);
     cache_insert (C, "yoyoyo", "wow");
+    cache_print(C);
     if (cache_find(C, "mamama") != NULL) {
         fprintf(stderr, "found mamama!\n");
     }
