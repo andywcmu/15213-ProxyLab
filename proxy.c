@@ -79,8 +79,6 @@ int main(int argc, char *argv[]) {
 
     struct cache_header *C = cache_init();
 
-    cache_insert(C, "andy", "hahahahahaha");
-
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
@@ -97,6 +95,8 @@ int main(int argc, char *argv[]) {
         Rio_readlineb(&clientrio, buf, MAXLINE);
         sscanf(buf, "%s %s %s", method, uri, version);
 
+        fprintf(stdout, "\n%s\n", buf);
+
         // Read other key:value pairs
         while(strcmp(buf, "\r\n")) {
             // TODO forward other headers
@@ -110,13 +110,15 @@ int main(int argc, char *argv[]) {
 
         /* If the request method is GET */
         else {
-            /* see if already in cache */
             char *object = cache_find(C, uri);
+            /* found in cache */
             if (object != NULL) {
+                fprintf(stdout, "found in cache!\n");
                 Rio_writen(clientfd, object, strlen(object));
             }
             /* not in cache */
             else {
+                fprintf(stdout, "not in cache!\n");
                 parse_uri(uri, host, &serverport, suffix);
 
                 char to_server_buf[MAXLINE];
