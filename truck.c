@@ -84,8 +84,6 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 		// In our implementation, this will happen only if the cache
 		// consists of exactly one block.
 		if (C->cache_block_num == 1) {
-			// Free(C->start->object);
-			// Free(C->start->object_name);
 			C->end = C->start;
 			C->cache_block_num = 0;
 			ASSERT (C->cache_size == cb->object_size);
@@ -99,8 +97,6 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 	else {
 		C->cache_block_num -= 1;
 		C->cache_size -= cb->object_size;
-		// Free(cb->object);
-		// Free(cb->object_name);
 		ASSERT (0 <= C->cache_size && C->cache_size <= MAX_CACHE_SIZE);
 		ASSERT (C->cache_block_num >= 0);
 		cb->object_name = cb->next->object_name;
@@ -115,7 +111,6 @@ char *cache_find (struct cache_header *C, char *uri) {
 	REQUIRES (C != NULL);
 	struct cache_block *ptr = C->start;
 	while (ptr != C->end) {
-		fprintf(stdout, "comparing: %s\n", ptr->object_name);
 		if (!strcmp(uri, ptr->object_name)) {
 			/* found the object */
 			// if the block is already a LRU
@@ -130,9 +125,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 				old->object = ptr->object;
 				old->next = ptr->next;
 
-				fprintf(stdout, "old name: %s\n", old->object_name);
 				cache_delete(C, ptr);
-				fprintf(stdout, "old name: %s\n", old->object_name);
 				cache_add_to_end(C, old);
 				return old->object;
 			}
