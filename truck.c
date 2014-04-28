@@ -131,6 +131,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 				old->next = ptr->next;
 
 				cache_delete(C, ptr);
+				fprintf(stdout, "old name: %s\n", old->object_name);
 				cache_add_to_end(C, old);
 				return old->object;
 			}
