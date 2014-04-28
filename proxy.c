@@ -34,11 +34,13 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
   *host = '\0';
 
   if (*ptr == ':') {
+    *ptr = '\0';
     ptr++;
     sscanf(ptr, "%d%s", port, ptr);
   }
 
   strcpy(suffix, ptr);
+  strcpy(uri, suffix);
 
   return 0;
 }
