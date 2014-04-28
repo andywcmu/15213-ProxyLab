@@ -118,7 +118,9 @@ int main(int argc, char *argv[]) {
             /* not in cache */
             else {
                 fprintf(stdout, "NOT IN CACHE\n");
+                fprintf(stdout, "uri: %s\n", uri);
                 parse_uri(uri, host, &serverport, suffix);
+                fprintf(stdout, "uri: %s\n", uri);
 
                 char to_server_buf[MAXLINE];
                 create_headers_to_server(to_server_buf, host, suffix);
@@ -147,7 +149,6 @@ int main(int argc, char *argv[]) {
                 }
 
                 /* add to cache */
-                fprintf(stdout, "uri: %s\n", uri);
                 if (cache_insert_flag) cache_insert (C, uri, object_buf, object_size);
 
                 /* clear the buffer */
