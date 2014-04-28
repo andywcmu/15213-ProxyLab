@@ -48,6 +48,9 @@ void cache_add_to_end (struct cache_header *C, struct cache_block *cb) {
 	REQUIRES (C != NULL);
 	REQUIRES (C->end != NULL);
 	REQUIRES (cb != NULL);
+	C->cache_size += cb->object_size;
+	C->cache_block_num += 1;
+
 	C->end->object_name = cb->object_name;
 	C->end->object = cb->object;
 	C->end->object_size = cb->object_size;
@@ -118,7 +121,6 @@ char *cache_find (struct cache_header *C, char *uri) {
 			// otherwise, move it to the end and return
 			else {
 				char *ret = ptr->object;
-				fprintf(stderr, "the size of the found thing: %zu\n", ptr->object_size);
 				cache_delete(C, ptr);
 				cache_add_to_end(C, ptr);
 				return ret;
