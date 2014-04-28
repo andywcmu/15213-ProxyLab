@@ -85,9 +85,11 @@ int main(int argc, char *argv[]) {
     cache_print(C);
     cache_insert (C, "yoyoyo", "wow");
     cache_print(C);
+    fprintf(stderr, "findfindfind\n");
     if (cache_find(C, "mamama") != NULL) {
         fprintf(stderr, "found mamama!\n");
     }
+    cache_print(C);
 
     listenport = atoi(argv[1]);
 
