@@ -84,8 +84,8 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 		// In our implementation, this will happen only if the cache
 		// consists of exactly one block.
 		if (C->cache_block_num == 1) {
-			Free(C->start->object);
-			Free(C->start->object_name);
+			// Free(C->start->object);
+			// Free(C->start->object_name);
 			C->end = C->start;
 			C->cache_block_num = 0;
 			ASSERT (C->cache_size == cb->object_size);
@@ -99,8 +99,8 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 	else {
 		C->cache_block_num -= 1;
 		C->cache_size -= cb->object_size;
-		Free(cb->object);
-		Free(cb->object_name);
+		// Free(cb->object);
+		// Free(cb->object_name);
 		ASSERT (0 <= C->cache_size && C->cache_size <= MAX_CACHE_SIZE);
 		ASSERT (C->cache_block_num >= 0);
 		cb->object_name = cb->next->object_name;
