@@ -112,6 +112,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 	REQUIRES (C != NULL);
 	struct cache_block *ptr = C->start;
 	while (ptr != C->end) {
+		fprintf(stdout, "comparing: %s\n", ptr->object_name);
 		if (!strcmp(uri, ptr->object_name)) {
 			/* found the object */
 			// if the block is already a LRU
@@ -127,9 +128,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 				old->next = ptr->next;
 
 				cache_delete(C, ptr);
-				cache_print(C);
 				cache_add_to_end(C, old);
-				cache_print(C);
 				return old->object;
 			}
 
