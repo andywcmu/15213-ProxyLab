@@ -40,7 +40,7 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
   }
 
   strcpy(suffix, ptr);
-  strcpy(uri, suffix);
+  strcat(uri, suffix);
 
   return 0;
 }
