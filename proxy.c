@@ -79,18 +79,6 @@ int main(int argc, char *argv[]) {
 
     struct cache_header *C = cache_init();
 
-    cache_insert (C, "andy", "lalala");
-    cache_print(C);
-    cache_insert (C, "mamama", "hahahah");
-    cache_print(C);
-    cache_insert (C, "yoyoyo", "wow");
-    cache_print(C);
-    fprintf(stderr, "findfindfind\n");
-    if (cache_find(C, "mamama") != NULL) {
-        fprintf(stderr, "found mamama!\n");
-    }
-    cache_print(C);
-
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
@@ -123,7 +111,7 @@ int main(int argc, char *argv[]) {
         /* If the request method is GET */
         else {
             char *object = cache_find(C, uri);
-            fprintf(stdout, "uri: %s\n", uri);
+            // fprintf(stdout, "uri: %s\n", uri);
             /* found in cache */
             if (object != NULL) {
                 fprintf(stdout, "found in cache!\n");
