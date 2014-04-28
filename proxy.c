@@ -95,6 +95,7 @@ int main(int argc, char *argv[]) {
         sscanf(buf, "%s %s %s", method, uri, version);
 
         fprintf(stdout, "%s\n", buf);
+        fprintf(stdout, "uri: %s\n", uri);
 
         // Read other key:value pairs
         while(strcmp(buf, "\r\n")) {
