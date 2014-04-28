@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
                 if (cache_insert_flag) cache_insert (C, uri, object_buf, object_size);
 
                 /* clear the buffer */
-                strcpy(object_buf, "");
+                // strcpy(object_buf, "");
 
                 Close(serverfd);
             }
