@@ -95,7 +95,6 @@ int main(int argc, char *argv[]) {
         sscanf(buf, "%s %s %s", method, uri, version);
 
         fprintf(stdout, "%s\n", buf);
-        fprintf(stdout, "uri: %s\n", uri);
 
         // Read other key:value pairs
         while(strcmp(buf, "\r\n")) {
@@ -148,6 +147,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 /* add to cache */
+                fprintf(stdout, "uri: %s\n", uri);
                 if (cache_insert_flag) cache_insert (C, uri, object_buf, object_size);
 
                 /* clear the buffer */
