@@ -111,6 +111,7 @@ int main(int argc, char *argv[]) {
         /* If the request method is GET */
         else {
             char *object = cache_find(C, uri);
+            fprintf(stdout, "uri: %s\n", uri);
             /* found in cache */
             if (object != NULL) {
                 fprintf(stdout, "found in cache!\n");
