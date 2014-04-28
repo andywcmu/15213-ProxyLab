@@ -137,7 +137,7 @@ void cache_insert (struct cache_header *C, char *uri, char *object, size_t objec
 	char *copied_object = Malloc(object_size);
 	memcpy(copied_object, object, object_size);
 
-	size_t object_uri_size = strlen(uri);
+	size_t object_uri_size = strlen(uri) + 1;
 	char *copied_object_uri = Malloc(object_uri_size);
 	memcpy(copied_object_uri, uri, object_uri_size);
 
