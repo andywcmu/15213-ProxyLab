@@ -118,6 +118,7 @@ char *cache_find (struct cache_header *C, char *uri) {
 			// otherwise, move it to the end and return
 			else {
 				char *ret = ptr->object;
+				fprintf(stderr, "the size of the found thing: %zu\n", ptr->object_size);
 				cache_delete(C, ptr);
 				cache_add_to_end(C, ptr);
 				return ret;
