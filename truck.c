@@ -8,19 +8,7 @@
 #define MAX_CACHE_SIZE 1049000
 #define MAX_OBJECT_SIZE 102400
 
-struct cache_header {
-	struct cache_block *start;
-	struct cache_block *end;
-	int cache_size;
-	int cache_block_num;
-};
 
-struct cache_block {
-	struct cache_block *next;
-	size_t object_size;
-	char *object_name;
-	char *object;
-};
 
 void cache_print (struct cache_header *C) {
 	REQUIRES (C != NULL);
@@ -115,7 +103,7 @@ struct cache_block *cache_find (struct cache_header *C, char *uri) {
 			/* found the object */
 			// if the block is already a LRU
 			if (ptr->next == C->end) {
-				return ptr->object;
+				return ptr;
 			}
 			// otherwise, move it to the end and return
 			else {
