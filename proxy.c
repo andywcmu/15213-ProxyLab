@@ -25,20 +25,20 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
 {
   *port = 80;
 
-  uri = uri + 7;
-  while (*uri != '/' && *uri != ':') {
-    *host = *uri;
-    uri++;
+  char *ptr = uri + 7;
+  while (*ptr != '/' && *ptr != ':') {
+    *host = *ptr;
+    ptr++;
     host++;
   }
   *host = '\0';
 
-  if (*uri == ':') {
-    uri++;
-    sscanf(uri, "%d%s", port, uri);
+  if (*ptr == ':') {
+    ptr++;
+    sscanf(ptr, "%d%s", port, ptr);
   }
 
-  strcpy(suffix, uri);
+  strcpy(suffix, ptr);
 
   return 0;
 }
