@@ -61,7 +61,7 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
 }
 
 inline static void create_std_headers (char *std_header_buf) {
-    sprintf(std_header_buf, "%s%s%s%s%s%s%s\r\n",
+    sprintf(std_header_buf, "%s%s%s%s%s\r\n",
         user_agent_hdr,
         accept_hdr,
         accept_encoding_hdr,
@@ -70,7 +70,7 @@ inline static void create_std_headers (char *std_header_buf) {
     return;
 }
 
-inline static void create_headers_to_server (char *to_server_buf, char *host, char *suffix) {
+inline static void create_headers_to_server (rio_t *clientriop, char *to_server_buf, char *host, char *suffix) {
     char get_request_buf[MAXLINE];
     sprintf(get_request_buf, get_request_hdr, suffix);
 
@@ -79,11 +79,10 @@ inline static void create_headers_to_server (char *to_server_buf, char *host, ch
 
     char add_hdr_buf[MAXLINE];
     char host_buf[MAXLINE];
-    char to_server_buf[MAXLINE];
     strcpy(host_buf, "");    
 
-    while(Rio_readlineb(&clientrio, buf, MAXLINE) > 0) {
-        if(strcmp(buf, "\r\n") {
+    while(Rio_readlineb(clientriop, buf, MAXLINE) > 0) {
+        if (!strcmp(buf, "\r\n")) {
             break;
         } else if (strncmp(buf, host_key, strlen(host_key)) {
             strcpy(host_buf, buf);
@@ -100,6 +99,7 @@ inline static void create_headers_to_server (char *to_server_buf, char *host, ch
     }
 
     sprintf(to_server_buf, "%s%s%s%s", get_request_buf, host_buf, std_hdr_buf, add_hdr_buf);
+    return;
 }
 
 
@@ -171,7 +171,7 @@ void *thread_client(void *vargp) {
 
             /* prepare for the headers */
             char *to_server_buf[MAXLINE];
-            create_headers_to_server(host, suffix);
+            create_headers_to_server(&clientrio, host, suffix);
 
             /* Send to server */
             if ((serverfd = open_clientfd(host, serverport)) < 0) {
