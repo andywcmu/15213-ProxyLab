@@ -83,10 +83,10 @@ inline static void create_headers_to_server (rio_t *clientriop, char *to_server_
 
     char buf[MAXLINE];
 
-    while(Rio_readlineb(clientriop, buf, MAXLINE) > 0) {
+    while (Rio_readlineb(clientriop, buf, MAXLINE) > 0) {
         if (!strcmp(buf, "\r\n")) {
             break;
-        } else if (strncmp(buf, host_key, strlen(host_key)) {
+        } else if (strncmp(buf, host_key, strlen(host_key))) {
             strcpy(host_buf, buf);
         } else if (!strncmp(buf, user_agent_key, strlen(user_agent_key)) &&
                    !strncmp(buf, accept_key, strlen(accept_key)) &&
@@ -173,7 +173,7 @@ void *thread_client(void *vargp) {
             parse_uri(uri, host, &serverport, suffix);
 
             /* prepare for the headers */
-            char *to_server_buf[MAXLINE];
+            char to_server_buf[MAXLINE];
             create_headers_to_server(&clientrio, to_server_buf, host, suffix);
 
             /* Send to server */
