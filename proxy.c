@@ -79,7 +79,9 @@ inline static void create_headers_to_server (rio_t *clientriop, char *to_server_
 
     char add_hdr_buf[MAXLINE];
     char host_buf[MAXLINE];
-    strcpy(host_buf, "");    
+    strcpy(host_buf, "");
+
+    char buf[MAXLINE];
 
     while(Rio_readlineb(clientriop, buf, MAXLINE) > 0) {
         if (!strcmp(buf, "\r\n")) {
@@ -90,8 +92,9 @@ inline static void create_headers_to_server (rio_t *clientriop, char *to_server_
                    !strncmp(buf, accept_key, strlen(accept_key)) &&
                    !strncmp(buf, accept_encoding_key, strlen(accept_encoding_key)) &&
                    !strncmp(buf, connection_key, strlen(connection_key)) &&
-                   !strncmp(buf, proxy_connection_key, strlen(proxy_connection_key)))
-        strcat(add_hdr_buf, buf);
+                   !strncmp(buf, proxy_connection_key, strlen(proxy_connection_key))) {
+            strcat(add_hdr_buf, buf);
+        }
     }
 
     if (strlen(host_buf) == 0) {
@@ -171,7 +174,7 @@ void *thread_client(void *vargp) {
 
             /* prepare for the headers */
             char *to_server_buf[MAXLINE];
-            create_headers_to_server(&clientrio, host, suffix);
+            create_headers_to_server(&clientrio, to_server_buf, host, suffix);
 
             /* Send to server */
             if ((serverfd = open_clientfd(host, serverport)) < 0) {
