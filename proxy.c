@@ -25,7 +25,7 @@ struct cache_header *C;
 /*
  * parse a uri http://<host>:<port(optional)><filename>. If the port part is
  * missing, a default 80 is returned.
- */
+ */s
 int parse_uri(char *uri, char *host, int *port, char *suffix)
 {
   char uricpy[MAXLINE];
