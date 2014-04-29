@@ -62,8 +62,6 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
 
 inline static void create_std_headers (char *std_header_buf) {
     sprintf(std_header_buf, "%s%s%s%s%s%s%s\r\n",
-        get_request_buf,
-        host_buf,
         user_agent_hdr,
         accept_hdr,
         accept_encoding_hdr,
