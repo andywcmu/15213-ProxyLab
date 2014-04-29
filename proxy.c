@@ -25,7 +25,7 @@ struct cache_header *C;
 /*
  * parse a uri http://<host>:<port(optional)><filename>. If the port part is
  * missing, a default 80 is returned.
- */s
+ */
 int parse_uri(char *uri, char *host, int *port, char *suffix)
 {
   char uricpy[MAXLINE];
@@ -120,6 +120,8 @@ void *thread_client(void *vargp) {
     Rio_readinitb(&clientrio, clientfd);
     Rio_readlineb(&clientrio, buf, MAXLINE);
     sscanf(buf, "%s %s %s", method, uri, version);
+
+    Rio_readlineb(&clientrio, buf, MAXLINE);
 
     // Read other key:value pairs
     while(strcmp(buf, "\r\n")) {
