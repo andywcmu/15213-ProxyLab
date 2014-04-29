@@ -121,13 +121,13 @@ void *thread_client(void *vargp) {
     Rio_readlineb(&clientrio, buf, MAXLINE);
     sscanf(buf, "%s %s %s", method, uri, version);
 
-    Rio_readlineb(&clientrio, buf, MAXLINE);
+    // Rio_readlineb(&clientrio, buf, MAXLINE);
 
-    // Read other key:value pairs
-    while(strcmp(buf, "\r\n")) {
-        // TODO forward other headers
-        Rio_readlineb(&clientrio, buf, MAXLINE);
-    }
+    // // Read other key:value pairs
+    // while(strcmp(buf, "\r\n")) {
+    //     // TODO forward other headers
+    //     Rio_readlineb(&clientrio, buf, MAXLINE);
+    // }
 
 
     /* If the request method is GET */
