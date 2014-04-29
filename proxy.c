@@ -16,13 +16,14 @@ static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 static const char *get_request_hdr = "GET %s HTTP/1.0\r\n";
 
-static const char *not_found_page =
-    "<html> \
-        <body> \
-            <img src='not_found.jpg'></img> \
-            <p>By Andy Wang & Peter Fan - ProxyLab</p> \
-        </body> \
-    </html>\r\n";
+static const char *host_key = "Host:";
+static const char *user_agent_key = "User-Agent:";
+static const char *accept_key = "Accept:";
+static const char *accept_encoding_key = "Accept-Encoding";
+static const char *connection_key = "Connection";
+static const char *proxy_connection_key = "Proxy-Connection";
+
+static const char *not_found_page = "<html><body>404 Not Found - ProxyLab</body></html>\r\n";
 
 
 int parse_uri(char *uri, char *host, int *port, char *suffix);
@@ -59,14 +60,8 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
   return 0;
 }
 
-inline static void create_headers_to_server (char *to_server_buf,
-    char *host, char *suffix) {
-
-    char host_buf[MAXLINE];
-    char get_request_buf[MAXLINE];
-    sprintf(get_request_buf, get_request_hdr, suffix);
-    sprintf(host_buf, host_hdr, host);
-    sprintf(to_server_buf, "%s%s%s%s%s%s%s\r\n",
+inline static void create_std_headers (char *std_header_buf) {
+    sprintf(std_header_buf, "%s%s%s%s%s%s%s\r\n",
         get_request_buf,
         host_buf,
         user_agent_hdr,
@@ -75,6 +70,38 @@ inline static void create_headers_to_server (char *to_server_buf,
         connection_hdr,
         proxy_connection_hdr);
     return;
+}
+
+inline static void create_headers_to_server (char *to_server_buf, char *host, char *suffix) {
+    char get_request_buf[MAXLINE];
+    sprintf(get_request_buf, get_request_hdr, suffix);
+
+    char std_hdr_buf[MAXLINE];
+    create_std_headers(std_hdr_buf);
+
+    char add_hdr_buf[MAXLINE];
+    char host_buf[MAXLINE];
+    char to_server_buf[MAXLINE];
+    strcpy(host_buf, "");    
+
+    while(Rio_readlineb(&clientrio, buf, MAXLINE) > 0) {
+        if(strcmp(buf, "\r\n") {
+            break;
+        } else if (strncmp(buf, host_key, strlen(host_key)) {
+            strcpy(host_buf, buf);
+        } else if (!strncmp(buf, user_agent_key, strlen(user_agent_key)) &&
+                   !strncmp(buf, accept_key, strlen(accept_key)) &&
+                   !strncmp(buf, accept_encoding_key, strlen(accept_encoding_key)) &&
+                   !strncmp(buf, connection_key, strlen(connection_key)) &&
+                   !strncmp(buf, proxy_connection_key, strlen(proxy_connection_key)))
+        strcat(add_hdr_buf, buf);
+    }
+
+    if (strlen(host_buf) == 0) {
+        sprintf(host_buf, host_hdr, host);
+    }
+
+    sprintf(to_server_buf, "%s%s%s%s", get_request_buf, host_buf, std_hdr_buf, add_hdr_buf);
 }
 
 
@@ -131,19 +158,12 @@ void *thread_client(void *vargp) {
     Rio_readlineb(&clientrio, buf, MAXLINE);
     sscanf(buf, "%s %s %s", method, uri, version);
 
-    Rio_readlineb(&clientrio, buf, MAXLINE);
-    // Read other key:value pairs
-    while(strcmp(buf, "\r\n")) {
-        // TODO forward other headers
-        Rio_readlineb(&clientrio, buf, MAXLINE);
-    }
-
 
     /* If the request method is GET */
     if (!strcmp(method, "GET")) {
 
         struct cache_block *block = cache_find(C, uri);
-         // found in cache
+        /* found in cache */
         if (block != NULL) {
             Rio_writen(clientfd, block->object, block->object_size);
         }
@@ -151,8 +171,9 @@ void *thread_client(void *vargp) {
         else {
             parse_uri(uri, host, &serverport, suffix);
 
-            char to_server_buf[MAXLINE];
-            create_headers_to_server(to_server_buf, host, suffix);
+            /* prepare for the headers */
+            char *to_server_buf[MAXLINE];
+            create_headers_to_server(host, suffix);
 
             /* Send to server */
             if ((serverfd = open_clientfd(host, serverport)) < 0) {
