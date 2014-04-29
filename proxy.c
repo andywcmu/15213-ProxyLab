@@ -20,7 +20,6 @@ static const char *get_request_hdr = "GET %s HTTP/1.0\r\n";
 int parse_uri(char *uri, char *host, int *port, char *suffix);
 void *thread_client(void *vargp);
 void *thread_request(void *vargp);
-sem_t mutex;
 struct cache_header *C;
 
 /*
@@ -132,9 +131,7 @@ void *thread_client(void *vargp) {
     /* If the request method is GET */
     if (!strcmp(method, "GET")) {
 
-        // P(&mutex);
         struct cache_block *block = cache_find(C, uri);
-        // V(&mutex);
          // found in cache
         if (block != NULL) {
             Rio_writen(clientfd, block->object, block->object_size);
@@ -169,12 +166,10 @@ void *thread_client(void *vargp) {
                 }
             }
 
-            // P(&mutex);
             /* add to cache */
             if (cache_insert_flag) {
                 cache_insert (C, uri, object_buf, object_size);
             }
-            // V(&mutex);
 
             /* clear the buffer */
             Close(serverfd);
