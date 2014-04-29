@@ -19,7 +19,7 @@ static const char *get_request_hdr = "GET %s HTTP/1.0\r\n";
 static const char *not_found_page =
     "<html> \
         <body> \
-            <img src="not_found.jpg"></img> \
+            <img src='not_found.jpg'></img> \
             <p>By Andy Wang & Peter Fan - ProxyLab</p> \
         </body> \
     </html>\r\n";
