@@ -184,6 +184,7 @@ void *thread_client(void *vargp) {
             }
             Rio_readinitb(&serverrio, serverfd);
             Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
+            fprintf(stdout, "%s\n", to_server_buf);
 
             /* Get from server and send to client */
             size_t object_size = 0;
@@ -213,9 +214,9 @@ void *thread_client(void *vargp) {
         }
     }
 
-    else {
-        fprintf(stderr, "method %s not yet implemented\n", method);
-    }
+    // else {
+    //     fprintf(stderr, "method %s not yet implemented\n", method);
+    // }
 
     Close(clientfd);
     return NULL;
