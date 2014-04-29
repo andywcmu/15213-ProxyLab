@@ -150,7 +150,7 @@ void *thread_client(void *vargp) {
 
             /* Send to server */
             if ((serverfd = Open_clientfd(host, serverport)) == 0) {
-                Rio_written(clientfd, not_found_page, strlen(not_found_page));
+                Rio_writen(clientfd, not_found_page, strlen(not_found_page));
                 Close(clientfd);
                 return NULL;
             }
