@@ -16,6 +16,8 @@ static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 static const char *get_request_hdr = "GET %s HTTP/1.0\r\n";
 
+static const char *not_found_page = "<html><body>404 Not Found - ProxyLab</body></html>\r\n";
+
 
 int parse_uri(char *uri, char *host, int *port, char *suffix);
 void *thread_client(void *vargp);
@@ -83,12 +85,14 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    // Sem_init(&mutex, 0, 1);
     C = cache_init();
 
     listenport = atoi(argv[1]);
 
-    listenfd = Open_listenfd(listenport);
+    if((listenfd = Open_listenfd(listenport)) == 0) {
+        fprintf(stderr, "failed to listen to port %s\n", argv[1]);
+        exit(1);
+    }
 
     clientlen = sizeof(clientaddr);
     while (1) {
@@ -121,13 +125,12 @@ void *thread_client(void *vargp) {
     Rio_readlineb(&clientrio, buf, MAXLINE);
     sscanf(buf, "%s %s %s", method, uri, version);
 
-    // Rio_readlineb(&clientrio, buf, MAXLINE);
-
-    // // Read other key:value pairs
-    // while(strcmp(buf, "\r\n")) {
-    //     // TODO forward other headers
-    //     Rio_readlineb(&clientrio, buf, MAXLINE);
-    // }
+    Rio_readlineb(&clientrio, buf, MAXLINE);
+    // Read other key:value pairs
+    while(strcmp(buf, "\r\n")) {
+        // TODO forward other headers
+        Rio_readlineb(&clientrio, buf, MAXLINE);
+    }
 
 
     /* If the request method is GET */
@@ -146,7 +149,11 @@ void *thread_client(void *vargp) {
             create_headers_to_server(to_server_buf, host, suffix);
 
             /* Send to server */
-            serverfd = Open_clientfd(host, serverport);
+            if ((serverfd = Open_clientfd(host, serverport)) == 0) {
+                Rio_written(clientfd, not_found_page, strlen(not_found_page));
+                Close(clientfd);
+                return NULL;
+            }
             Rio_readinitb(&serverrio, serverfd);
             Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
 
