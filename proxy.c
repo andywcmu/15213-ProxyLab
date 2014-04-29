@@ -16,7 +16,13 @@ static const char *connection_hdr = "Connection: close\r\n";
 static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 static const char *get_request_hdr = "GET %s HTTP/1.0\r\n";
 
-static const char *not_found_page = "<html><body>404 Not Found - ProxyLab</body></html>\r\n";
+static const char *not_found_page =
+    "<html> \
+        <body> \
+            <img src="not_found.jpg"></img> \
+            <p>By Andy Wang & Peter Fan - ProxyLab</p> \
+        </body> \
+    </html>\r\n";
 
 
 int parse_uri(char *uri, char *host, int *port, char *suffix);
