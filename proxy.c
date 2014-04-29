@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
     listenport = atoi(argv[1]);
 
-    if((listenfd = Open_listenfd(listenport)) == 0) {
+    if((listenfd = open_listenfd(listenport)) < 0) {
         fprintf(stderr, "failed to listen to port %s\n", argv[1]);
         exit(1);
     }
@@ -149,7 +149,7 @@ void *thread_client(void *vargp) {
             create_headers_to_server(to_server_buf, host, suffix);
 
             /* Send to server */
-            if ((serverfd = Open_clientfd(host, serverport)) == 0) {
+            if ((serverfd = open_clientfd(host, serverport)) < 0) {
                 Rio_writen(clientfd, (void *) not_found_page, strlen(not_found_page));
                 Close(clientfd);
                 return NULL;
