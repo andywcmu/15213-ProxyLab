@@ -1,10 +1,12 @@
 /* interface */
+#include "csapp.h"
 
 struct cache_header {
 	struct cache_block *start;
 	struct cache_block *end;
 	int cache_size;
 	int cache_block_num;
+    sem_t mutex;
 };
 
 struct cache_block {

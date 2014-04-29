@@ -17,6 +17,12 @@ static const char *proxy_connection_hdr = "Proxy-Connection: close\r\n";
 static const char *get_request_hdr = "GET %s HTTP/1.0\r\n";
 
 
+int parse_uri(char *uri, char *host, int *port, char *suffix);
+void *thread_client(void *vargp);
+void *thread_request(void *vargp);
+sem_t mutex;
+struct cache_header *C;
+
 /*
  * parse a uri http://<host>:<port(optional)><filename>. If the port part is
  * missing, a default 80 is returned.
@@ -46,32 +52,31 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
   return 0;
 }
 
-inline static void create_headers_to_server (char *to_server_buf, char *host, char *suffix) {
+inline static void create_headers_to_server (char *to_server_buf,
+    char *host, char *suffix) {
+
     char host_buf[MAXLINE];
     char get_request_buf[MAXLINE];
     sprintf(get_request_buf, get_request_hdr, suffix);
     sprintf(host_buf, host_hdr, host);
     sprintf(to_server_buf, "%s%s%s%s%s%s%s\r\n",
         get_request_buf,
-        host_buf, user_agent_hdr, accept_hdr, accept_encoding_hdr, connection_hdr,
+        host_buf,
+        user_agent_hdr,
+        accept_hdr,
+        accept_encoding_hdr,
+        connection_hdr,
         proxy_connection_hdr);
     return;
 }
 
 
 int main(int argc, char *argv[]) {
-    int listenfd, clientfd, serverfd;
-    int listenport, serverport;
+    int listenfd, *clientfd;
+    int listenport;
     size_t clientlen;
     struct sockaddr_in clientaddr;
-    
-    char method[MAXLINE], uri[MAXLINE], version[MAXLINE];
-    char host[MAXLINE], suffix[MAXLINE];
-
-    char buf[MAXLINE];
-    char object_buf[MAX_OBJECT_SIZE];
-
-    rio_t clientrio, serverrio;
+    pthread_t tid;
 
     /* Check command line args */
     if (argc != 2) {
@@ -79,89 +84,107 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    struct cache_header *C = cache_init();
+    Sem_init(&mutex, 0, 1);
+    C = cache_init();
 
     listenport = atoi(argv[1]);
 
     listenfd = Open_listenfd(listenport);
-    
+
+    clientlen = sizeof(clientaddr);
     while (1) {
-        cache_print(C);
+        clientfd = Malloc(sizeof(int));
+        *clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
-        clientlen = sizeof(clientaddr);
-        clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
-
-        /* Read method, uri, version + other key:value pairs from client */
-        // Read method, uri, version
-        Rio_readinitb(&clientrio, clientfd);
-        Rio_readlineb(&clientrio, buf, MAXLINE);
-        sscanf(buf, "%s %s %s", method, uri, version);
-
-        fprintf(stdout, "%s\n", buf);
-
-        // Read other key:value pairs
-        while(strcmp(buf, "\r\n")) {
-            // TODO forward other headers
-            Rio_readlineb(&clientrio, buf, MAXLINE);
-        }
-
-
-        if (strcmp(method, "GET")) {
-            fprintf(stderr, "method %s not yet implemented\n", method);
-        }
-
-        /* If the request method is GET */
-        else {
-            struct cache_block *block = cache_find(C, uri);
-            /* found in cache */
-            if (block != NULL) {
-                fprintf(stdout, "FOUND IN CACHE\n");
-                Rio_writen(clientfd, block->object, block->object_size);
-            }
-            /* not in cache */
-            else {
-                fprintf(stdout, "NOT IN CACHE\n");
-                fprintf(stdout, "uri: %s\n", uri);
-                parse_uri(uri, host, &serverport, suffix);
-                fprintf(stdout, "uri: %s\n", uri);
-
-                char to_server_buf[MAXLINE];
-                create_headers_to_server(to_server_buf, host, suffix);
-
-                /* Send to server */
-                serverfd = Open_clientfd(host, serverport);
-                Rio_readinitb(&serverrio, serverfd);
-                Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
-
-                /* Get from server and send to client */
-                size_t object_size = 0;
-                size_t buflen;
-                int cache_insert_flag = 1;
-                
-                while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
-                    Rio_writen(clientfd, buf, buflen);
-                    if (object_size + buflen > MAX_OBJECT_SIZE) {
-                        // the object is already too big.
-                        // no need to do strcat and cache_insert.
-                        cache_insert_flag = 0;
-                    }
-                    else {
-                        memcpy(object_buf + object_size, buf, buflen);
-                        object_size += buflen;
-                    }
-                }
-
-                /* add to cache */
-                if (cache_insert_flag) cache_insert (C, uri, object_buf, object_size);
-
-                /* clear the buffer */
-                // strcpy(object_buf, "");
-
-                Close(serverfd);
-            }
-        }
-
-        Close(clientfd);
+        Pthread_create(&tid, NULL, thread_client, (void*)clientfd);
     }
     return 0;
+}
+
+
+void *thread_client(void *vargp) {
+    int clientfd = *(int *)vargp;
+    Pthread_detach(pthread_self());
+    free(vargp);
+
+
+    rio_t clientrio, serverrio;
+    char buf[MAXLINE];
+    char method[MAXLINE], uri[MAXLINE], version[MAXLINE];
+
+    int serverport;
+    int serverfd;
+    char host[MAXLINE], suffix[MAXLINE];
+    char object_buf[MAX_OBJECT_SIZE];
+
+    /* Read method, uri, version + other key:value pairs from client */
+    Rio_readinitb(&clientrio, clientfd);
+    Rio_readlineb(&clientrio, buf, MAXLINE);
+    sscanf(buf, "%s %s %s", method, uri, version);
+
+    // Read other key:value pairs
+    while(strcmp(buf, "\r\n")) {
+        // TODO forward other headers
+        Rio_readlineb(&clientrio, buf, MAXLINE);
+    }
+
+
+    /* If the request method is GET */
+    if (!strcmp(method, "GET")) {
+
+        // P(&mutex);
+        struct cache_block *block = cache_find(C, uri);
+        // V(&mutex);
+         // found in cache
+        if (block != NULL) {
+            Rio_writen(clientfd, block->object, block->object_size);
+        }
+        /* not in cache */
+        else {
+            parse_uri(uri, host, &serverport, suffix);
+
+            char to_server_buf[MAXLINE];
+            create_headers_to_server(to_server_buf, host, suffix);
+
+            /* Send to server */
+            serverfd = Open_clientfd(host, serverport);
+            Rio_readinitb(&serverrio, serverfd);
+            Rio_writen(serverfd, to_server_buf, strlen(to_server_buf));
+
+            /* Get from server and send to client */
+            size_t object_size = 0;
+            size_t buflen;
+            int cache_insert_flag = 1;
+
+            while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
+                Rio_writen(clientfd, buf, buflen);
+                if (object_size + buflen > MAX_OBJECT_SIZE) {
+                    // the object is already too big.
+                    // no need to do strcat and cache_insert.
+                    cache_insert_flag = 0;
+                }
+                else {
+                    memcpy(object_buf + object_size, buf, buflen);
+                    object_size += buflen;
+                }
+            }
+
+            // P(&mutex);
+            /* add to cache */
+            if (cache_insert_flag) {
+                cache_insert (C, uri, object_buf, object_size);
+            }
+            // V(&mutex);
+
+            /* clear the buffer */
+            Close(serverfd);
+        }
+    }
+
+    else {
+        fprintf(stderr, "method %s not yet implemented\n", method);
+    }
+
+    Close(clientfd);
+    return NULL;
 }

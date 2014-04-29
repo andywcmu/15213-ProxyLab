@@ -29,6 +29,7 @@ struct cache_header *cache_init () {
 	new->end = dummy;
 	new->cache_size = 0;
 	new->cache_block_num = 0;
+	sem_init(&(new->mutex), 0, 1);
 	return new;
 }
 
@@ -97,12 +98,15 @@ void cache_delete (struct cache_header *C, struct cache_block *cb) {
 
 struct cache_block *cache_find (struct cache_header *C, char *uri) {
 	REQUIRES (C != NULL);
+	P(&(C->mutex));
+
 	struct cache_block *ptr = C->start;
 	while (ptr != C->end) {
 		if (!strcmp(uri, ptr->object_name)) {
 			/* found the object */
 			// if the block is already a LRU
 			if (ptr->next == C->end) {
+				V(&(C->mutex));
 				return ptr;
 			}
 			// otherwise, move it to the end and return
@@ -115,18 +119,22 @@ struct cache_block *cache_find (struct cache_header *C, char *uri) {
 
 				cache_delete(C, ptr);
 				cache_add_to_end(C, old);
+				V(&(C->mutex));
 				return old;
 			}
 
 		}
 		ptr = ptr->next;
 	}
+
 	/* not found */
+	V(&(C->mutex));
 	return NULL;
 }
 
 void cache_insert (struct cache_header *C, char *uri, char *object, size_t object_size) {
 	REQUIRES (C != NULL);
+	P(&(C->mutex));
 
 	if (object_size > MAX_OBJECT_SIZE) return;
 
@@ -146,6 +154,8 @@ void cache_insert (struct cache_header *C, char *uri, char *object, size_t objec
 	new->object_size = object_size;
 	new->object = copied_object;
 	cache_add_to_end(C, new);
+
+	V(&(C->mutex));
 	return;
 }
 
