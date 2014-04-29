@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    Sem_init(&mutex, 0, 1);
+    // Sem_init(&mutex, 0, 1);
     C = cache_init();
 
     listenport = atoi(argv[1]);
