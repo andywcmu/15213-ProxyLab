@@ -1,3 +1,15 @@
+/*
+ * proxy.c
+ * An awesome http GET request proxy.
+ *
+ * Andy Wang: andiwang
+ * Peter Xia: fx
+ *
+ * Spring 2014
+ * 15-213 ProxyLab
+ * Carnegie Mellon University
+ */
+
 #include <stdio.h>
 #include "csapp.h"
 #include "truck.h"
@@ -61,7 +73,9 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
   return 0;
 }
 
-/* Construct a header with default values */
+/*
+ * Construct a header with default values
+ */
 inline static void create_std_headers (char *std_header_buf) {
     sprintf(std_header_buf, "%s%s%s%s%s\r\n",
         user_agent_hdr,
@@ -72,7 +86,9 @@ inline static void create_std_headers (char *std_header_buf) {
     return;
 }
 
-/* Construct a header with client header entries included */
+/*
+ * Construct a header with client header entries included
+ */
 inline static void create_headers_to_server (rio_t *clientriop,
     char *to_server_buf, char *host, char *suffix) {
 
@@ -93,11 +109,16 @@ inline static void create_headers_to_server (rio_t *clientriop,
             break;
         } else if (!strncmp(buf, host_key, strlen(host_key))) {
             strcpy(host_buf, buf);
-        } else if (!strncmp(buf, user_agent_key, strlen(user_agent_key)) &&
-                   !strncmp(buf, accept_key, strlen(accept_key)) &&
-                   !strncmp(buf, accept_encoding_key, strlen(accept_encoding_key)) &&
-                   !strncmp(buf, connection_key, strlen(connection_key)) &&
-                   !strncmp(buf, proxy_connection_key, strlen(proxy_connection_key))) {
+        } else if (!strncmp(buf, user_agent_key,
+                        strlen(user_agent_key)) &&
+                   !strncmp(buf, accept_key,
+                        strlen(accept_key)) &&
+                   !strncmp(buf, accept_encoding_key,
+                        strlen(accept_encoding_key)) &&
+                   !strncmp(buf, connection_key,
+                        strlen(connection_key)) &&
+                   !strncmp(buf, proxy_connection_key,
+                        strlen(proxy_connection_key))) {
             strcat(add_hdr_buf, buf);
         }
     }
@@ -106,11 +127,17 @@ inline static void create_headers_to_server (rio_t *clientriop,
         sprintf(host_buf, host_hdr, host);
     }
 
-    sprintf(to_server_buf, "%s%s%s%s", get_request_buf, host_buf, std_hdr_buf, add_hdr_buf);
+    sprintf(to_server_buf, "%s%s%s%s",
+                get_request_buf,
+                host_buf,
+                std_hdr_buf,
+                add_hdr_buf);
     return;
 }
 
-
+/*
+ * main routine
+ */
 int main(int argc, char *argv[]) {
     int listenfd, *clientfd;
     int listenport;
@@ -137,7 +164,8 @@ int main(int argc, char *argv[]) {
 
     while (1) {
         clientfd = Malloc(sizeof(int));
-        *clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
+        *clientfd = Accept(listenfd, (SA *)&clientaddr,
+            (socklen_t *)&clientlen);
 
         /* run client connection on another thread. */
         Pthread_create(&tid, NULL, thread_client, (void*)clientfd);
@@ -145,7 +173,10 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-
+/*
+ * thread routine. Forward request from client to server, then forward data
+ * from server back to client.
+ */
 void *thread_client(void *vargp) {
     int clientfd = *(int *)vargp;
     Pthread_detach(pthread_self());
@@ -185,7 +216,8 @@ void *thread_client(void *vargp) {
 
             /* Send to server */
             if ((serverfd = open_clientfd(host, serverport)) < 0) {
-                Rio_writen(clientfd, (void *) not_found_page, strlen(not_found_page));
+                Rio_writen(clientfd,
+                    (void *) not_found_page, strlen(not_found_page));
                 Close(clientfd);
                 return NULL;
             }
