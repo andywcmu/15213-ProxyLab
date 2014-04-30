@@ -1,14 +1,13 @@
-/* interface */
+/*
+ * Terrific Recently Used Cache Kick-ass.
+ * truck.h - interface of cache.
+ */
 #include "csapp.h"
 
-struct cache_header {
-	struct cache_block *start;
-	struct cache_block *end;
-	int cache_size;
-	int cache_block_num;
-    sem_t mutex;
-};
 
+/*
+ * struct of single cache block
+ */
 struct cache_block {
 	struct cache_block *next;
 	size_t object_size;
@@ -22,16 +21,17 @@ struct cache_block {
 struct cache_header *cache_init ();
 
 /*
- * Return a pointer to the data object.
+ * Find an object in the cache with the given uri. If the object exists in
+ * cache, a pointer to it is returned. Otherwise NULL is returned.
+ *
+ * If the object exists in cache, it also automatically perform a cache hit
+ * operation.
  */
 struct cache_block *cache_find (struct cache_header *C, char *uri);
 
 /*
- * Add a data object to the cache.
+ * Add a data object to the cache. Automatically evict LRU object(s) if cache
+ * is full.
  */
-void cache_insert (struct cache_header *C, char *uri, char *object, size_t object_size);
-
-/*
- * Print the cache.
- */
-void cache_print (struct cache_header *C);
+void cache_insert (struct cache_header *C,
+    char *uri, char *object, size_t object_size);

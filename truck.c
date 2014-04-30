@@ -1,5 +1,11 @@
-/* truck.c */
-/* TRUCK - Terrific Recently Used Cache Kick-ass. */
+/*
+ * Terrific Recently Used Cache Kick-ass.
+ * truck.h - implementation of cache.
+ *
+ * Implemented with list updating. With a singly linked list, an object is
+ * moved to the end of the list when it was hit. The LRU object is therefore
+ * always in the front of the list.
+ */
 
 #include "csapp.h"
 #include "truck.h"
@@ -8,19 +14,16 @@
 #define MAX_CACHE_SIZE 1049000
 #define MAX_OBJECT_SIZE 102400
 
-
-
-void cache_print (struct cache_header *C) {
-	REQUIRES (C != NULL);
-	fprintf(stdout, "CACHE PRINT: size: %d num: %d\n", C->cache_size, C->cache_block_num);
-	fprintf(stdout, "####### START #######\n");
-	struct cache_block *ptr = C->start;
-	while (ptr != C->end) {
-		fprintf(stdout, "%s\t%zu\n", ptr->object_name, ptr->object_size);
-		ptr = ptr->next;
-	}
-	fprintf(stdout, "######## END ########\n");
-}
+/*
+ * struct of a cache header.
+ */
+struct cache_header {
+	struct cache_block *start;
+	struct cache_block *end;
+	int cache_size;
+	int cache_block_num;
+    sem_t mutex;
+};
 
 struct cache_header *cache_init () {
 	struct cache_header *new = Malloc (sizeof(struct cache_header));
@@ -102,14 +105,14 @@ struct cache_block *cache_find (struct cache_header *C, char *uri) {
 
 	struct cache_block *ptr = C->start;
 	while (ptr != C->end) {
+		/* found the object */
 		if (!strcmp(uri, ptr->object_name)) {
-			/* found the object */
-			// if the block is already a LRU
+			/* if the block is already a LRU */
 			if (ptr->next == C->end) {
 				V(&(C->mutex));
 				return ptr;
 			}
-			// otherwise, move it to the end and return
+			/* otherwise, move it to the end and return */
 			else {
 				struct cache_block *old = Malloc (sizeof(struct cache_block));
 				old->object_name = ptr->object_name;
