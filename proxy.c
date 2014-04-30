@@ -87,7 +87,16 @@ inline static void create_std_headers (char *std_header_buf) {
 }
 
 /*
- * Construct a header with client header entries included
+ * start_with - return 1 if str does not start with the string start, and
+ * non-zero otherwise.
+ */ 
+inline static int not_start_with (char *str, char *start) {
+    return strncmp(str, start, strlen(start));
+}
+
+/*
+ * create_headers_to_server - construct a header with client header
+ * entries included.
  */
 inline static void create_headers_to_server (rio_t *clientriop,
     char *to_server_buf, char *host, char *suffix) {
@@ -109,24 +118,21 @@ inline static void create_headers_to_server (rio_t *clientriop,
             break;
         } else if (!strncmp(buf, host_key, strlen(host_key))) {
             strcpy(host_buf, buf);
-        } else if (!strncmp(buf, user_agent_key,
-                        strlen(user_agent_key)) &&
-                   !strncmp(buf, accept_key,
-                        strlen(accept_key)) &&
-                   !strncmp(buf, accept_encoding_key,
-                        strlen(accept_encoding_key)) &&
-                   !strncmp(buf, connection_key,
-                        strlen(connection_key)) &&
-                   !strncmp(buf, proxy_connection_key,
-                        strlen(proxy_connection_key))) {
+        } else if (not_start_with(buf, user_agent_key) &&
+                   not_start_with(buf, accept_key) &&
+                   not_start_with(buf, accept_encoding_key) &&
+                   not_start_with(buf, connection_key) &&
+                   not_start_with(buf, proxy_connection_key)) {
             strcat(add_hdr_buf, buf);
         }
     }
 
+    /* if Host is not mentioned by the client */
     if (strlen(host_buf) == 0) {
         sprintf(host_buf, host_hdr, host);
     }
 
+    /* merge headers */
     sprintf(to_server_buf, "%s%s%s%s",
                 get_request_buf,
                 host_buf,
