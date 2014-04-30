@@ -223,7 +223,7 @@ void *thread_client(void *vargp) {
             create_headers_to_server(&clientrio, to_server_buf, host, suffix);
 
             /* Send to server */
-            if ((serverfd = open_clientfd(host, serverport)) < 0) {
+            if ((serverfd = open_clientfd_r(host, serverport)) < 0) {
                 Rio_writen(clientfd,
                     (void *) not_found_page, strlen(not_found_page));
                 Close(clientfd);
