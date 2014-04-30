@@ -1,7 +1,19 @@
 /*
- * Terrific Recently Used Cache Kick-ass.
- * truck.h - interface of cache.
+ * truck.h
+ * Header of cache.
+ *
+ * Andy Wang: andiwang
+ * Peter Xia: fx
+ *
+ * Spring 2014
+ * 15-213 ProxyLab
+ * Carnegie Mellon University
+ *
+ * The cache is implemented by list updating. With a singly linked list, an
+ * object is moved to the end of the list when it was hit. The LRU object is
+ * therefore always in the front of the list.
  */
+
 #include "csapp.h"
 
 
