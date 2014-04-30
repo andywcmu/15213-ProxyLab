@@ -90,7 +90,7 @@ inline static void create_std_headers (char *std_header_buf) {
  * start_with - return 1 if str does not start with the string start, and
  * non-zero otherwise.
  */ 
-inline static int not_start_with (char *str, char *start) {
+inline static int not_start_with (char *str, const char *start) {
     return strncmp(str, start, strlen(start));
 }
 
