@@ -1,9 +1,17 @@
 /*
- * truck.c - implementation of cache.
+ * truck.c
+ * Implementation of cache.
  *
- * Implemented with list updating. With a singly linked list, an object is
- * moved to the end of the list when it was hit. The LRU object is therefore
- * always in the front of the list.
+ * Andy Wang: andiwang
+ * Peter Xia: fx
+ *
+ * Spring 2014
+ * 15-213 ProxyLab
+ * Carnegie Mellon University
+ *
+ * The cache is implemented by list updating. With a singly linked list, an
+ * object is moved to the end of the list when it was hit. The LRU object is
+ * therefore always in the front of the list.
  */
 
 #include "csapp.h"

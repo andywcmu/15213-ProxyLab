@@ -8,6 +8,8 @@
  * Spring 2014
  * 15-213 ProxyLab
  * Carnegie Mellon University
+ *
+ * This is a multi-thread proxy implemented with a cache. 
  */
 
 #include <stdio.h>
@@ -45,8 +47,8 @@ void *thread_client(void *vargp);
 struct cache_header *C;
 
 /*
- * parse a uri http://<host>:<port(optional)><filename>. If the port part is
- * missing, a default 80 is returned.
+ * parse_uri - parse a uri http://<host>:<port(optional)><filename>. If the
+ * port part is missing, a default 80 is returned.
  */
 int parse_uri(char *uri, char *host, int *port, char *suffix)
 {
@@ -74,7 +76,7 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
 }
 
 /*
- * Construct a header with default values
+ * create_std_headers - construct a header with default values
  */
 inline static void create_std_headers (char *std_header_buf) {
     sprintf(std_header_buf, "%s%s%s%s%s\r\n",
@@ -109,7 +111,7 @@ inline static void create_headers_to_server (rio_t *clientriop,
 
     char add_hdr_buf[MAXLINE];
     char host_buf[MAXLINE];
-    strcpy(host_buf, "");
+    strcpy(host_buf, ""); // initialize
 
     char buf[MAXLINE];
 
@@ -142,7 +144,7 @@ inline static void create_headers_to_server (rio_t *clientriop,
 }
 
 /*
- * main routine
+ * main - main routine.
  */
 int main(int argc, char *argv[]) {
     int listenfd, *clientfd;
@@ -180,8 +182,8 @@ int main(int argc, char *argv[]) {
 }
 
 /*
- * thread routine. Forward request from client to server, then forward data
- * from server back to client.
+ * thread_client - thread routine. Forward request from client to server,
+ * then forward data from server back to client.
  */
 void *thread_client(void *vargp) {
     int clientfd = *(int *)vargp;
