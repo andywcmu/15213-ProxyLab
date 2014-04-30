@@ -28,7 +28,8 @@ static const char *not_found_page = "<html><body>404 Not Found - ProxyLab</body>
 
 int parse_uri(char *uri, char *host, int *port, char *suffix);
 void *thread_client(void *vargp);
-void *thread_request(void *vargp);
+
+/* Global pointer to cache */
 struct cache_header *C;
 
 /*
@@ -60,6 +61,7 @@ int parse_uri(char *uri, char *host, int *port, char *suffix)
   return 0;
 }
 
+/* Construct a header with default values */
 inline static void create_std_headers (char *std_header_buf) {
     sprintf(std_header_buf, "%s%s%s%s%s\r\n",
         user_agent_hdr,
@@ -70,7 +72,10 @@ inline static void create_std_headers (char *std_header_buf) {
     return;
 }
 
-inline static void create_headers_to_server (rio_t *clientriop, char *to_server_buf, char *host, char *suffix) {
+/* Construct a header with client header entries included */
+inline static void create_headers_to_server (rio_t *clientriop,
+    char *to_server_buf, char *host, char *suffix) {
+
     char get_request_buf[MAXLINE];
     sprintf(get_request_buf, get_request_hdr, suffix);
 
@@ -129,10 +134,12 @@ int main(int argc, char *argv[]) {
     }
 
     clientlen = sizeof(clientaddr);
+
     while (1) {
         clientfd = Malloc(sizeof(int));
         *clientfd = Accept(listenfd, (SA *)&clientaddr, (socklen_t *)&clientlen);
 
+        /* run client connection on another thread. */
         Pthread_create(&tid, NULL, thread_client, (void*)clientfd);
     }
     return 0;
@@ -193,12 +200,11 @@ void *thread_client(void *vargp) {
 
             while((buflen = Rio_readlineb(&serverrio, buf, MAXLINE)) != 0){
                 Rio_writen(clientfd, buf, buflen);
+                /* if the object is too big, do not insert in cache */
                 if (object_size + buflen > MAX_OBJECT_SIZE) {
-                    // the object is already too big.
-                    // no need to do strcat and cache_insert.
                     cache_insert_flag = 0;
-                }
-                else {
+                /* otherwise, insert */
+                } else {
                     memcpy(object_buf + object_size, buf, buflen);
                     object_size += buflen;
                 }
