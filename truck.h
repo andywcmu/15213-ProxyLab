@@ -5,6 +5,8 @@
 #include "csapp.h"
 
 
+struct cache_header;
+
 /*
  * struct of single cache block
  */
