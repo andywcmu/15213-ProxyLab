@@ -9,7 +9,7 @@
  * 15-213 ProxyLab
  * Carnegie Mellon University
  *
- * This is a multi-thread proxy implemented with a cache. 
+ * This is a multi-threading proxy with a cache. 
  */
 
 #include <stdio.h>
